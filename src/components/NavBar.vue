@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import RoutesList from "../components/RoutesList.vue";
+import RoutesList from "@/components/RoutesList.vue";
 export default {
   name: "NavBar",
   components: {

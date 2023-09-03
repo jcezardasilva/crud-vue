@@ -1,14 +1,26 @@
 import {createRouter,createWebHistory } from "vue-router";
 import Home from './pages/HomePage.vue';
-import People from "./pages/PeoplePage.vue";
-const routes = [
+import Crud from "./pages/CrudPage.vue";
+import store from "./core/store";
+
+export const routes = [
     { path: '/', component: Home },
-    { path: '/people', component: People }
+    { path: '/crud', component: Crud }
   ]
 
-export const router = createRouter({
+export function addRoute(path){
+  routes.push({ path: path.startsWith("/")? path: `/${path}`, component: Crud });
+}
+
+export function router(){
+  const router = createRouter({
     history: createWebHistory(),
     routes,
   })
+  router.beforeEach((to, from, next) => {
+    store.currentPage = to.path;
+    next();
+  });
 
-export default router;
+  return router;
+}

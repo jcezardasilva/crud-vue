@@ -2,12 +2,28 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { createApp } from 'vue'
 import App from './App.vue'
 import FontAwesomeIcons from './core/fontAwesomeIcons';
-import router from "./router";
+import { v4 as uuidv4 } from 'uuid';
+import store from "./core/store";
+import {addRoute, router } from "./router";
 
-const app = createApp(App);
-FontAwesomeIcons.config(app);
+import pageService from "./core/pageService";
 
-app.use(router);
-app.mount('#app');
+pageService.getAll().then((pages) => {
+    store.pages = pages;
+
+    pages.forEach(page => {
+        addRoute(page.path);
+    });
+
+    const app = createApp(App);
+    FontAwesomeIcons.config(app);
+    app.config.globalProperties.$uuidv4 = uuidv4;
+    
+    app.use(router());
+    app.mount('#app');    
+});
+
+
+
 
 import 'bootstrap';
