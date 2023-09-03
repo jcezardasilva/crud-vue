@@ -6,13 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 import store from "./core/store";
 import {addRoute, router } from "./router";
 
-import pageService from "./core/pageService";
+import entityService from "./core/entityService";
 
-pageService.getAll().then((pages) => {
-    store.pages = pages;
+entityService.getAll().then((entities) => {
+    store.entities = entities;
 
-    pages.forEach(page => {
-        addRoute(page.path);
+    entities.forEach(entity => {
+        addRoute(entity.path);
     });
 
     const app = createApp(App);

@@ -68,10 +68,10 @@ export default {
     async saveEntity(){
       this.saving = true;
       if(this.formData.action=='delete'){
-        await deleteEntity(this.store.currentPage,this.formData.row.id);
+        await deleteEntity(this.store.currentEntity,this.formData.row.id);
       } 
       else{
-        await saveEntity(this.store.currentPage,this.store.values);
+        await saveEntity(this.store.currentEntity,this.store.values);
       }
       this.$emit('onSave',null);
       this.saving = false;

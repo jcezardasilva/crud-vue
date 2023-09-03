@@ -9,7 +9,7 @@
             to="/"
             >Home</router-link>
         </li>
-        <li class="nav-item" v-for="(item,index) in store.pages" :key="index">
+        <li class="nav-item" v-for="(item,index) in store.entities" :key="index">
             <router-link
             class='nav-link'
             @click="setActiveItem(item.name)"

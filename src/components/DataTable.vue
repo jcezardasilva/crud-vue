@@ -6,9 +6,11 @@
         </tr>
     </thead>
     <tbody>
-        <DataRow v-for="(values,index) in rows" :key="index" :values="mapValues(values)" 
+        <DataRow v-for="(values,index) in rows" :key="index" :data="mapValues(values)" 
         @update-entity="onUpdateEntity"
-        @delete-entity="onDeleteEntity"/>
+        @delete-entity="onDeleteEntity"
+        @open-multiline-item="onOpenMultilineItem"
+        />
     </tbody>
     </table>
 </template>
@@ -38,7 +40,7 @@ export default {
             }
         }
     },
-    emits: ['updateEntity','deleteEntity'],
+    emits: ['updateEntity','deleteEntity','openMultilineItem'],
     methods: {
         mapValues(values){
             let result = [];
@@ -51,7 +53,9 @@ export default {
                     }
                     result.push({
                         key: key,
-                        value: value
+                        label: column.label,
+                        value: value,
+                        isMultiline: column.dataType.indexOf("[]")>-1,
                     })
                 }
             }
@@ -72,6 +76,9 @@ export default {
         },
         onDeleteEntity(value){
             this.$emit('deleteEntity',value);
+        },
+        onOpenMultilineItem(value){
+            this.$emit('openMultilineItem',value);
         }
     }
 }

@@ -1,8 +1,8 @@
 import { reactive} from "vue";
 
 const state = reactive({
-    pages: [],
-    currentPage: "/home",
+    entities: [],
+    currentEntity: "/home",
     values: {}
 })
 export default state;

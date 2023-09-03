@@ -1,13 +1,18 @@
 <template>
     <tr>
-        <th >{{values[0].value}}</th>
-        <td v-for="(value,index) in filterValues(values)" :key="index">
-            <span v-if="value.value!=='actions'">{{value.value}}</span>
-            <div v-if="value.value=='actions'">
-                <button class="btn btn-warning me-2" @click="updateEntity(value.id)">
+        <th >{{data[0].value}}</th>
+        <td v-for="(item,index) in filterData(data)" :key="index">
+            <span v-if="item.value!=='actions' && !item.isMultiline">{{item.value}}</span>
+            <div v-if="item.isMultiline">
+                <button class="btn btn-secondary me-2" @click="onOpenMultilineItem(item)">
+                    <font-awesome-icon icon="fa-solid fa-list"/>
+                </button>
+            </div>
+            <div v-if="item.value=='actions' && !item.isMultiline">
+                <button class="btn btn-warning me-2" @click="updateEntity(item.id)">
                     <font-awesome-icon icon="fa-solid fa-pencil"/>
                 </button>
-                <button class="btn btn-danger ms-2" @click="deleteEntity(value.id)">
+                <button class="btn btn-danger ms-2" @click="deleteEntity(item.id)">
                     <font-awesome-icon icon="fa-solid fa-trash"/>
                 </button>
             </div>
@@ -18,25 +23,30 @@
 <script>
 export default {
     name: "DataRow",
-    props: {
-        values: Array
+    components: {
     },
     data(){
         return {
-
+            modalData: []
         }
     },
-    emits: ['updateEntity','deleteEntity'],
+    props: {
+        data: Array
+    },
+    emits: ['updateEntity','deleteEntity','openMultilineItem'],
     methods:{
-        filterValues(values){
-            values.shift();
-            return values;
+        filterData(data){
+            data.shift();
+            return data;
         },
         updateEntity(value){
             this.$emit('updateEntity',value);
         },
         deleteEntity(value){
             this.$emit('deleteEntity',value);
+        },
+        onOpenMultilineItem(value){
+            this.$emit('openMultilineItem',value);
         }
     }
 }

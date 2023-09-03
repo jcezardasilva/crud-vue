@@ -1,15 +1,27 @@
 <template>
   <div class="d-flex flex-column vh-100">
     <NavBar />
-    <CommandBar @onClickAdd="openModalInsert" @onClickRefresh="getData" v-if="page!==null" :update="update"/>
-    <DataTable :columns="columns" :rows="rows" v-if="page!==null" @update-entity="onUpdateEntity" @delete-entity="onDeleteEntity"/>
+    <CommandBar @onClickAdd="openModalInsert" @onClickRefresh="getData" v-if="entity!==null" :update="update"/>
+    <DataTable 
+    :columns="columns" 
+    :rows="rows" 
+    v-if="entity!==null" 
+    @update-entity="onUpdateEntity" 
+    @delete-entity="onDeleteEntity"
+    @openMultilineItem="openMultilineItem"/>
     <UpsertModal 
     :title="modalTitle" 
     :visible="modalVisible" 
     :formData="modalData" 
     @onclickHide="closeModal" 
     @onSave="saveEntity"
-    v-if="page!==null"/>
+    v-if="entity!==null"/>
+    
+    <JsonModal 
+    :title="jsonModalTitle" 
+    :visible="jsonModalVisible" 
+    :jsonData="jsonData" 
+    @onclick-hide="closeJsonModal"/>
   </div>
 </template>
 
@@ -17,6 +29,7 @@
 import NavBar from "@/components/NavBar.vue";
 import DataTable from "@/components/DataTable.vue";
 import UpsertModal from "@/components/UpsertModal.vue";
+import JsonModal from '@/components/JsonModal.vue';
 import CommandBar from "@/components/CommandBar.vue";
 import store from "@/core/store";
 import {getAll} from "@/core/crudService";
@@ -27,46 +40,55 @@ export default {
     DataTable,
     NavBar,
     CommandBar,
-    UpsertModal
+    UpsertModal,
+    JsonModal
   },
   data(){
     return {
       update: null,
-      page: null,
+      entity: null,
       store,
       rows: [],
       modalTitle: "",
       modalVisible: false,
+      jsonData: [],
+      jsonModalTitle: "Items",
+      jsonModalVisible: false,
       columns: [],
       modalData: {
         columns: null,
         row: null,
-        action: "upsert"
+        action: "insert"
       }
     }
   },
   watch: {
-    "store.currentPage": {
+    "store.currentEntity": {
       handler(value){
         const path = value.replace("\\","");
-        this.page = this.store.pages.find(p=> path.indexOf(p.path)>-1);
-        if(this.page){
-          this.loadPage();
+        this.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
+        if(this.entity){
+          this.loadEntity();
         }
       }
     }
   },
   mounted(){
-    this.page = this.store.pages.find(p=> this.store.currentPage.indexOf(p.path)>-1);
-    this.loadPage();
+    this.entity = this.store.entities.find(p=> this.store.currentEntity.indexOf(p.path)>-1);
+    this.loadEntity();
   },
   methods: {
-    async loadPage(){
-      this.getPageColumns();
+    async loadEntity(){
+      this.getColumns();
       this.getData();
     },
+    getColumns(){
+      if(this.entity){
+        this.columns = this.entity.fields;
+      }
+    },
     async getData(){
-      this.rows = await getAll(this.store.currentPage);
+      this.rows = await getAll(this.store.currentEntity);
       this.update = new Date();
     },
     async openModalInsert(){
@@ -92,6 +114,9 @@ export default {
     async closeModal(){
       this.modalVisible = false;
     },
+    closeJsonModal(){
+      this.jsonModalVisible = false;
+    },
     async saveEntity(){
       this.modalVisible = false;
       this.getData();
@@ -104,10 +129,10 @@ export default {
       var data = this.rows.find(r=>r.id==value);
       this.openModalDelete(data);
     },
-    getPageColumns(){
-      if(this.page){
-        this.columns = this.page.fields;
-      }
+    openMultilineItem(data){
+      this.jsonData = data;
+      this.jsonModalTitle = data.label;
+      this.jsonModalVisible = true;
     }
   }
 }

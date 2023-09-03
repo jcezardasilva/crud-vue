@@ -1,5 +1,5 @@
 const apiUrl = "http://localhost:8081";
-const endpoint = "/api/pages";
+const endpoint = "/api/entities";
 
 export async function getAll(){
     const response = await fetch(`${apiUrl}${endpoint}`);
