@@ -2,11 +2,11 @@
     <table class="table table-hover table-bordered table-sm">
     <thead>
         <tr>
-            <th scope="col" v-for="(col,index) in filterColumns(columns)" :key="index">{{col.label}}</th>
+            <th scope="col" v-for="(col,index) in filterColumns()" :key="index">{{col.label}}</th>
         </tr>
     </thead>
     <tbody>
-        <DataRow v-for="(values,index) in rows" :key="index" :data="mapValues(values)" 
+        <DataRow v-for="(values,index) in store.data.items" :key="index" :data="mapValues(values)" 
         @update-entity="onUpdateEntity"
         @delete-entity="onDeleteEntity"
         @open-multiline-item="onOpenMultilineItem"
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import store from "@/core/store";
 import DataRow from "./DataRow.vue";
 
 export default {
@@ -24,8 +25,6 @@ export default {
         DataRow
     },
     props: {
-        columns: Array,
-        rows: Array,
         showActions: {
             type: Boolean,
             default: true
@@ -33,6 +32,7 @@ export default {
     },
     data(){
         return {
+            store,
             actionsColumn: {
                 name: "crud-actions",
                 label: "Actions",
@@ -45,8 +45,9 @@ export default {
         mapValues(values){
             let result = [];
             let id = "";
+            const columns = this.filterColumns();
             for (let [key, value] of Object.entries(values)) {
-                const column = this.filterColumns(this.columns).find(c => c.name === key);
+                const column = columns.find(c => c.name === key);
                 if(column){
                     if(column.isKey || column.name == "id"){
                         id = value;
@@ -65,7 +66,8 @@ export default {
             }
             return result;
         },
-        filterColumns(columns){
+        filterColumns(){
+            let columns = [...this.store.data.fields];
             if(this.showActions){
                 columns = columns.concat([this.actionsColumn]);
             }

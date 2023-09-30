@@ -41,11 +41,6 @@ export default {
             inputTypes: ["color","date","datetime-local","email","file","image","month","number","password","tel","text","time","url","week"]
         }
     },
-    watch: {
-        options: function(newValue){
-            this.setOptions(newValue);
-        }
-    },
     mounted(){
         this.fieldId = this.$uuidv4() + this.options.name;
     },

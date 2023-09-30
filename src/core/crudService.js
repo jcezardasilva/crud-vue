@@ -20,7 +20,7 @@ export async function getAll(entity){
  */
 export async function saveEntity(entity,data){
     const entityValue = entity.startsWith("/")? entity: `/${entity}`;
-    const id = data.id ? `/${data.id}` : null;
+    const id = data.id ? `/${data.id}` : "";
     const response = await fetch(`${apiUrl}${endpoint}${entityValue}${id}`,{
         method: id? 'PUT': 'POST',
         headers: {

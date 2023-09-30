@@ -8,6 +8,10 @@
       <a class="ms-2" href="#" @click="this.$emit('onClickRefresh',null)">
         <font-awesome-icon icon="fa-solid fa-rotate-right" />
       </a>
+      <a class="ms-2" href="#" @click="handleToggleViewMode">
+        <font-awesome-icon icon="fa-solid fa-table" v-if="viewMode=='table'"/>
+        <font-awesome-icon icon="fa-solid fa-file-lines" v-if="viewMode=='form'"/>
+      </a>
     </div>
   </div>
 </template>
@@ -15,16 +19,25 @@
 <script>
 export default {
     name: "CommandBar",
-    emits: ["onClickAdd","onClickRefresh"],
+    emits: ["onClickAdd","onClickRefresh", "onToggleViewMode"],
     props: {
       update: {
         type: Date,
         default: null
       }
     },
+    data(){
+      return {
+          viewMode: "table"
+      }
+    },
     methods: {
       refresh(){
         return this.update.toISOString().slice(0, 19).replace('T', ' ');
+      },
+      handleToggleViewMode(){
+        this.viewMode = this.viewMode=="table"? "form" : "table";
+        this.$emit('onToggleViewMode',this.viewMode);
       }
     }
 }

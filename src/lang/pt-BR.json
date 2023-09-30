@@ -1,0 +1,9 @@
+{
+    "form": {
+        "footer": {
+            "save": "Salvar",
+            "delete": "Remover",
+            "cancel": "Cancelar"
+        }
+    }
+}

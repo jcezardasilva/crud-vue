@@ -1,18 +1,20 @@
 <template>
   <div class="d-flex flex-column vh-100">
     <NavBar />
-    <CommandBar @onClickAdd="openModalInsert" @onClickRefresh="getData" v-if="entity!==null" :update="update"/>
-    <DataTable 
-    :columns="columns" 
-    :rows="rows" 
-    v-if="entity!==null" 
-    @update-entity="onUpdateEntity" 
-    @delete-entity="onDeleteEntity"
-    @openMultilineItem="openMultilineItem"/>
+    <CommandBar @onClickAdd="openModalInsert" @onClickRefresh="getData" @on-toggle-view-mode="toggleViewMode" v-if="entity!==null" :update="update"/>
+    <DataTable  
+      v-if="entity!==null && store.viewMode=='table'" 
+      @update-entity="onUpdateEntity" 
+      @delete-entity="onDeleteEntity"
+      @openMultilineItem="openMultilineItem"/>
+    
+    <DataForm v-if="entity!==null && store.viewMode=='form'"/>
+
+    <PaginationBar :pages="paginationList" v-if="store.viewMode=='form'" @on-change="changePaginationItem"/>
+
     <UpsertModal 
     :title="modalTitle" 
-    :visible="modalVisible" 
-    :formData="modalData" 
+    :visible="modalVisible"
     @onclickHide="closeModal" 
     @onSave="saveEntity"
     v-if="entity!==null"/>
@@ -27,7 +29,9 @@
 
 <script>
 import NavBar from "@/components/NavBar.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 import DataTable from "@/components/DataTable.vue";
+import DataForm from "@/components/forms/DataForm.vue";
 import UpsertModal from "@/components/UpsertModal.vue";
 import JsonModal from '@/components/JsonModal.vue';
 import CommandBar from "@/components/CommandBar.vue";
@@ -37,7 +41,9 @@ import {getAll} from "@/core/crudService";
 export default {
   name: 'App',
   components: {
+    PaginationBar,
     DataTable,
+    DataForm,
     NavBar,
     CommandBar,
     UpsertModal,
@@ -48,18 +54,12 @@ export default {
       update: null,
       entity: null,
       store,
-      rows: [],
       modalTitle: "",
       modalVisible: false,
       jsonData: [],
       jsonModalTitle: "Items",
       jsonModalVisible: false,
-      columns: [],
-      modalData: {
-        columns: null,
-        row: null,
-        action: "insert"
-      }
+      paginationList: []
     }
   },
   watch: {
@@ -69,6 +69,13 @@ export default {
         this.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
         if(this.entity){
           this.loadEntity();
+        }
+      }
+    },
+    "store.viewMode": {
+      handler(value,oldValue){
+        if(value=="form" && value !== oldValue){
+          this.loadFormItem();
         }
       }
     }
@@ -82,33 +89,39 @@ export default {
       this.getColumns();
       this.getData();
     },
+    setPaginationList(){
+      this.paginationList = this.store.data.items.map((_,index)=> index+1);
+    },
     getColumns(){
       if(this.entity){
-        this.columns = this.entity.fields;
+        this.store.data.fields = this.entity.fields;
       }
     },
     async getData(){
-      this.rows = await getAll(this.store.currentEntity);
+      this.store.data.items = await getAll(this.store.currentEntity);
+      this.setPaginationList();
+      this.loadFormItem();
       this.update = new Date();
     },
     async openModalInsert(){
       this.modalTitle = "Insert Item";
-      this.modalData.columns = this.columns;
-      this.modalData.action = "insert";
+      this.store.form.fields = this.store.data.fields;
+      this.store.form.item = null;
+      this.store.form.action = "insert";
       this.modalVisible = true;
     },
     async openModalUpdate(data){
       this.modalTitle = "Update Item";
-      this.modalData.columns = this.columns;
-      this.modalData.row = data;
-      this.modalData.action = "update";
+      this.store.form.fields = this.store.data.fields;
+      this.store.form.item = data;
+      this.store.form.action = "update";
       this.modalVisible = true;
     },
     async openModalDelete(data){
       this.modalTitle = "Delete Item";
-      this.modalData.columns = this.columns;
-      this.modalData.row = data;
-      this.modalData.action = "delete";
+      this.store.form.fields = this.store.data.fields;
+      this.store.form.item = data;
+      this.store.form.action = "delete";
       this.modalVisible = true;
     },
     async closeModal(){
@@ -122,17 +135,30 @@ export default {
       this.getData();
     },
     async onUpdateEntity(value){
-      var data = this.rows.find(r=>r.id==value);
+      var data = this.store.data.items.find(r=>r.id==value);
       this.openModalUpdate(data);
     },
     async onDeleteEntity(value){
-      var data = this.rows.find(r=>r.id==value);
+      var data = this.store.data.items.find(r=>r.id==value);
       this.openModalDelete(data);
     },
     openMultilineItem(data){
       this.jsonData = data;
       this.jsonModalTitle = data.label;
       this.jsonModalVisible = true;
+    },
+    toggleViewMode(value){
+      this.store.viewMode = value;
+    },
+    loadFormItem(){
+      this.store.form.fields = this.store.data.fields;
+      this.store.form.item = this.store.data.items[this.store.form.itemNumber-1];
+      this.store.form.action = "";
+      this.$nextTick(()=>this.setPaginationList());
+    },
+    changePaginationItem(value){
+      this.store.form.itemNumber = value;
+      this.loadFormItem();
     }
   }
 }

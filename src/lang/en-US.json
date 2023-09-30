@@ -1,0 +1,12 @@
+{
+    "form": {
+        "footer": {
+            "save": "Save",
+            "delete": "Delete",
+            "cancel": "Cancel",
+            "delete-tooltip": "Remove from the repository",
+            "save-tooltip": "Save the changes on repository"
+        }
+    },
+    "loading": "Loading..."
+}
