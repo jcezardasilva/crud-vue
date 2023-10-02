@@ -13,7 +13,10 @@ const state = reactive({
         action: "",
         fields: [],
         item: {},
-        itemNumber: 1
+        itemNumber: 1,
+        multilineEntity: "",
+        multilineFields: [],
+        multilineItems: []
     }
 })
 export default state;

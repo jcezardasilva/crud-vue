@@ -2,13 +2,13 @@
     <table class="table table-hover table-bordered table-sm">
     <thead>
         <tr>
-            <th scope="col" v-for="(col,index) in filterColumns()" :key="index">{{col.label}}</th>
+            <HeaderCell scope="col" v-for="(col,index) in filterColumns()" :key="index">{{col.label}}</HeaderCell>
         </tr>
     </thead>
     <tbody>
-        <DataRow v-for="(values,index) in store.data.items" :key="index" :data="mapValues(values)" 
-        @update-entity="onUpdateEntity"
-        @delete-entity="onDeleteEntity"
+        <TableRow v-for="(values,index) in store.data.items" :key="index" :items="mapValues(values)" 
+        @on-update-click="onUpdateClick"
+        @on-delete-click="onDeleteClick"
         @open-multiline-item="onOpenMultilineItem"
         />
     </tbody>
@@ -17,12 +17,14 @@
 
 <script>
 import store from "@/core/store";
-import DataRow from "./DataRow.vue";
+import HeaderCell from "./HeaderCell.vue";
+import TableRow from "./TableRow.vue";
 
 export default {
     "name": "DataTable",
     components: {
-        DataRow
+        HeaderCell,
+        TableRow
     },
     props: {
         showActions: {
@@ -33,6 +35,7 @@ export default {
     data(){
         return {
             store,
+            fields: [],
             actionsColumn: {
                 name: "crud-actions",
                 label: "Actions",
@@ -40,29 +43,30 @@ export default {
             }
         }
     },
-    emits: ['updateEntity','deleteEntity','openMultilineItem'],
+    emits: ['onUpdateClick','deleteEntity','openMultilineItem'],
     methods: {
         mapValues(values){
             let result = [];
             let id = "";
             const columns = this.filterColumns();
-            for (let [key, value] of Object.entries(values)) {
-                const column = columns.find(c => c.name === key);
-                if(column){
-                    if(column.isKey || column.name == "id"){
-                        id = value;
-                    }
+            
+            for(const column of columns){
+                const value = values[column.name];
+                
+                if(column.isKey || column.name == "id"){
+                    id = value;
+                }
+                if(column.name == "crud-actions" && this.showActions){
+                    result.push({value: 'actions', id: id});
+                }
+                else{
                     result.push({
-                        key: key,
+                        key: column.name,
                         label: column.label,
-                        value: value,
-                        isMultiline: column.dataType.indexOf("[]")>-1,
+                        value: value || "",
+                        isMultiline: (column.dataType || "string").indexOf("[]")>-1,
                     })
                 }
-            }
-            if(this.showActions)
-            {
-                result.push({value: 'actions', id: id});
             }
             return result;
         },
@@ -73,11 +77,11 @@ export default {
             }
             return columns.filter(column => [undefined,true].includes(column.visibleOnTable));
         },
-        onUpdateEntity(value){
-            this.$emit('updateEntity',value);
+        onUpdateClick(value){
+            this.$emit('onUpdateClick',value);
         },
-        onDeleteEntity(value){
-            this.$emit('deleteEntity',value);
+        onDeleteClick(value){
+            this.$emit('onDeleteClick',value);
         },
         onOpenMultilineItem(value){
             this.$emit('openMultilineItem',value);

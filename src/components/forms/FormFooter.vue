@@ -33,7 +33,7 @@
       },
       async deleteEntity(){
         this.saving = true;
-        await deleteEntity(this.store.currentEntity,this.store.form.row.id);
+        await deleteEntity(this.store.currentEntity,this.store.form.item.id);
         this.saving = false;
         this.$emit('onSave',null);
       },

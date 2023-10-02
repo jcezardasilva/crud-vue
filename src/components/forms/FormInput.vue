@@ -18,6 +18,7 @@
             class="form-control" 
             :id="fieldId"
             :value="value"
+            @change="changeValue"
             :disabled="disabled==true"
             ></textarea>
         </div>

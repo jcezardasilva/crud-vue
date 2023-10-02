@@ -29,8 +29,13 @@
       }
     },
     emits: ["onSave"],
-    watch: {
-    },
+  watch: {
+    "store.form.item": function(newVal,oldValue) {
+      if(newVal!==oldValue){
+        this.store.values = {...this.store.form.item};
+      }
+    }
+  },
     methods: {
       filterFormFields(){
           const filtered = this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
