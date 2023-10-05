@@ -16,7 +16,9 @@ const state = reactive({
         itemNumber: 1,
         multilineEntity: "",
         multilineFields: [],
-        multilineItems: []
+        multilineItems: [],
+        multilineIndex: 0,
+        multilineAction: "update"
     }
 })
 export default state;

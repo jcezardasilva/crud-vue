@@ -24,7 +24,8 @@
 export default {
     name: "PaginationBar",
     props: {
-        pages: Array
+        pages: Array,
+        value: Number
     },
     data(){
         return {
@@ -38,6 +39,13 @@ export default {
             handler(value, oldValue){
                 if(value !== oldValue){
                     this.setVisiblePages();
+                }
+            }
+        },
+        "value": {
+            handler(value, oldValue){
+                if(value !== oldValue){
+                    this.activePage = value;
                 }
             }
         }

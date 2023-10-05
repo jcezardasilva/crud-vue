@@ -1,26 +1,41 @@
 <template>
   <div class="d-flex flex-column vh-100">
     <NavBar />
-    <CommandBar @onClickAdd="openModalInsert" @onClickRefresh="getData" @on-toggle-view-mode="toggleViewMode" v-if="entity!==null" :update="update"/>
+    <CommandBar 
+    v-if="entity!==null"
+    @onClickAdd="openModalInsert" 
+    @onClickRefresh="getData" 
+    @on-toggle-view-mode="toggleViewMode"
+    :update="update"/>
     <CrudDataTable  
       v-if="entity!==null && store.viewMode=='table'" 
-      @on-update-click="onUpdateClick" 
-      @on-delete-click="onDeleteClick"
+      @on-update-click="onEntityUpdateClick" 
+      @on-delete-click="onEntityDeleteClick"
       @openMultilineItem="openMultilineItem"/>
     
     <DataForm v-if="entity!==null && store.viewMode=='form'" @on-save="saveEntity"/>
 
-    <PaginationBar :pages="paginationList" v-if="store.viewMode=='form'" @on-change="changePaginationItem"/>
+    <PaginationBar v-if="store.viewMode=='form'" :pages="paginationList" :value="store.form.itemNumber" @on-change="changePaginationItem"/>
 
-    <DataTable v-if="this.store.form.multilineEntity!=='' && store.viewMode=='form'" :fields="store.form.multilineFields" :items="store.form.multilineItems"/>
+    <DataTable 
+    v-if="this.store.form.multilineEntity!=='' && store.viewMode=='form'" 
+    :fields="store.form.multilineFields" 
+    :items="store.form.multilineItems"
+    @on-update-click="onSubEntityUpdateClick"
+    @on-delete-click="onSubEntityDeleteClick"
+    />
 
-    <UpsertModal 
+    <EntityModal 
     :title="modalTitle" 
-    :visible="modalVisible"
     @onclickHide="closeModal" 
     @onSave="saveEntity"
-    v-if="entity!==null"/>
+    v-if="entity!==null && modalVisible"/>
     
+    <SubEntityModal 
+    :title="modalTitle"
+    @onclickHide="closeModal" 
+    v-if="Object.keys(store.values).length>0 && modalVisible"/>
+
     <JsonModal 
     :title="jsonModalTitle" 
     :visible="jsonModalVisible" 
@@ -35,14 +50,15 @@ import PaginationBar from "@/components/PaginationBar.vue";
 import CrudDataTable from "@/components/tables/CrudDataTable.vue";
 import DataTable from "@/components/tables/DataTable.vue";
 import DataForm from "@/components/forms/DataForm.vue";
-import UpsertModal from "@/components/UpsertModal.vue";
-import JsonModal from '@/components/JsonModal.vue';
+import EntityModal from "@/components/modals/EntityModal.vue";
+import SubEntityModal from "@/components/modals/SubEntityModal.vue";
+import JsonModal from '@/components/modals/JsonModal.vue';
 import CommandBar from "@/components/CommandBar.vue";
 import store from "@/core/store";
 import {getAll} from "@/core/crudService";
 
 export default {
-  name: 'App',
+  name: 'CrudPage',
   components: {
     PaginationBar,
     CrudDataTable,
@@ -50,7 +66,8 @@ export default {
     DataForm,
     NavBar,
     CommandBar,
-    UpsertModal,
+    EntityModal,
+    SubEntityModal,
     JsonModal
   },
   data(){
@@ -104,6 +121,7 @@ export default {
     async getData(){
       this.store.data.items = await getAll(this.store.currentEntity);
       this.setPaginationList();
+      this.resetFormItemNumber();
       this.loadFormItem();
       this.update = new Date();
     },
@@ -114,18 +132,36 @@ export default {
       this.store.form.action = "insert";
       this.modalVisible = true;
     },
-    async openModalUpdate(data){
+    async onEntityUpdateClick(value){
+      const data = this.store.data.items.find(r=>r.id==value);
       this.modalTitle = "Update Item";
       this.store.form.fields = this.store.data.fields;
       this.store.form.item = data;
       this.store.form.action = "update";
       this.modalVisible = true;
     },
-    async openModalDelete(data){
+    async onEntityDeleteClick(value){
+      const data = this.store.data.items.find(r=>r.id==value);
       this.modalTitle = "Delete Item";
       this.store.form.fields = this.store.data.fields;
       this.store.form.item = data;
       this.store.form.action = "delete";
+      this.modalVisible = true;
+    },
+    async onSubEntityUpdateClick(index){
+      const data = this.store.form.multilineItems[index];
+      this.store.form.multilineIndex = index;
+      this.store.form.multilineAction = "update";
+      this.modalTitle = "Update Item";
+      this.store.values = data;
+      this.modalVisible = true;
+    },
+    async onSubEntityDeleteClick(index){
+      const data = this.store.form.multilineItems[index];
+      this.store.form.multilineIndex = index;
+      this.store.form.multilineAction = "delete";
+      this.modalTitle = "Delete Item";
+      this.store.values = data;
       this.modalVisible = true;
     },
     async closeModal(){
@@ -138,14 +174,6 @@ export default {
       this.modalVisible = false;
       this.getData();
     },
-    async onUpdateClick(value){
-      var data = this.store.data.items.find(r=>r.id==value);
-      this.openModalUpdate(data);
-    },
-    async onDeleteClick(value){
-      var data = this.store.data.items.find(r=>r.id==value);
-      this.openModalDelete(data);
-    },
     openMultilineItem(data){
       this.jsonData = data;
       this.jsonModalTitle = data.label;
@@ -154,15 +182,20 @@ export default {
     async toggleViewMode(value){
       this.store.viewMode = value;
       await this.getData();
+    },
+    resetFormItemNumber(){
       this.store.form.itemNumber = 1;
     },
-    loadFormItem(){
+    async loadFormItem(){
       if(store.viewMode!=="form") return;
+      
       this.store.form.fields = this.store.data.fields;
       this.store.form.item = this.store.data.items[this.store.form.itemNumber-1];
       this.store.form.action = "";
-      this.loadSubEntity();
-      this.$nextTick(()=>this.setPaginationList());
+      this.$nextTick(()=>{
+        this.loadSubEntity();
+        this.setPaginationList();
+      });
     },
     changePaginationItem(value){
       this.store.form.itemNumber = value;
@@ -179,7 +212,12 @@ export default {
       const item = multiline[0];
       this.store.form.multilineEntity = item.dataType.replace("[]","");
       const entity = this.store.entities.find(e=> e.name === this.store.form.multilineEntity);
-      if(entity === null) return;
+      if(entity === null)
+      {
+        this.store.form.multilineFields = [];
+        this.store.form.multilineItems = [];
+        return;
+      }
       this.store.form.multilineFields = entity.fields;
       this.store.form.multilineItems = this.store.form[item.name];
     }

@@ -48,24 +48,25 @@ export default {
     methods: {
         mapItems(){
             let result = [];
-            for(const item of [...this.items]){
-                result.push(this.mapValues(item));
-            }
+            [...this.items].forEach((item,i)=>{
+                result.push(this.mapValues(item,i));
+            })
             this.tableItems = result;
         },
-        mapValues(values){
+        mapValues(values, i){
             let result = [];
             let id = "";
             const columns = this.filterColumns();
             
-            for(const column of columns){
+            columns.forEach((column)=>{
+
                 const value = values[column.name];
                 
                 if(column.isKey || column.name == "id"){
                     id = value;
                 }
                 if(column.name == "crud-actions" && this.showActions){
-                    result.push({value: 'actions', id: id});
+                    result.push({value: 'actions', id: id || i.toString()});
                 }
                 else{
                     result.push({
@@ -75,7 +76,7 @@ export default {
                         isMultiline: (column.dataType || "string").indexOf("[]")>-1,
                     })
                 }
-            }
+            })
             return result;
         },
         filterColumns(){
