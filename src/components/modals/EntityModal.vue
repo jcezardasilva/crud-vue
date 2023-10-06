@@ -8,7 +8,7 @@
       </div>  
       <div class="modal-body">
         <p v-if="store.form.action=='delete'">Are you sure you want to delete this entity?</p>
-        <FormInput v-for="(input,index) in filterFormFields()" :key="index" :options="input" :value="getFieldValue(input.name)" :disabled="store.form.action=='delete'"/>
+        <FormInput v-for="(input,index) in visibleFields" :key="index" :options="input" :value="getFieldValue(input.name)" :disabled="store.form.action=='delete'"/>
       </div>
       <div class="modal-footer">
         <FormFooter 
@@ -44,33 +44,28 @@ export default {
   data(){
     return {
       store,
-      saving: false
+      saving: false,
+      visibleFields: null
     }
   },
   emits: ['onclickHide',"onSave"],
-  watch: {
-    visible: function(newVal) {
-      this.showModal = newVal;
-      if(newVal){
-        this.store.values = {...this.store.form.item};
-      }
-    }
+  mounted(){
+    this.visibleFields = this.filterFormFields();
   },
   methods: {
     hideModal(){
       this.$emit('onclickHide',null);
     },
     filterFormFields(){
-        const filtered = this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
-        return filtered;
+        return this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
     },
     getFieldValue(columnName){
-        return columnName && this.store.form.item? this.store.form.item[columnName] : "";
+        return columnName && this.store.values? this.store.values[columnName] : "";
     },
     async deleteEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        await deleteEntity(this.store.currentEntity,this.store.form.item.id);
+        await deleteEntity(this.store.currentEntity,this.store.values[this.store.modal.map.id.field]);
         this.saving = false;
         this.$emit('onSave',null);
       })

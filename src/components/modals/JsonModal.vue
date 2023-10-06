@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade show" v-if="showModal" tabindex="-1" style="display:block" aria-modal="true">
+  <div class="modal fade show" tabindex="-1" style="display:block" aria-modal="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -8,14 +8,27 @@
       </div>  
       <div class="modal-body">
         <VueJsoneditor 
+        v-if="editor.value!==null"
         height="400"
         mode="tree"
-        :json="data" >
+        v-model:json="editor.value" 
+        :mainMenuBar="editor.mainMenuBar"
+        @change="handleChange"
+        >
 
         </VueJsoneditor>
+
       </div>
       <div class="modal-footer">
-        <button type="button" @click="hideModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <FormFooter 
+        :is-saving="saving" 
+        :show-delete="false" 
+        :show-save="true"
+        @on-save-click="saveEntity">
+          <button v-if="!editor.mainMenuBar" type="button" @click="editor.mainMenuBar= !editor.mainMenuBar" class="btn btn-secondary m-1" data-bs-dismiss="modal">Advanced Mode</button>
+          <button v-if="editor.mainMenuBar" type="button" @click="editor.mainMenuBar= !editor.mainMenuBar" class="btn btn-secondary m-1" data-bs-dismiss="modal">Easy Mode</button>
+          <button type="button" @click="hideModal" class="btn btn-secondary m-1" data-bs-dismiss="modal">{{ $t("form.footer.close")}}</button>
+        </FormFooter>
       </div>
     </div>
   </div>
@@ -24,63 +37,54 @@
 
 <script>
 import VueJsoneditor from 'vue3-ts-jsoneditor';
+import FormFooter from "@/components/forms/FormFooter.vue";
+import {saveEntity} from "@/core/crudService";
+import store from "@/core/store";
 export default {
-  name: "DataTableModal",
+  name: "JsonModal",
   components: {
-    VueJsoneditor
+    VueJsoneditor,
+    FormFooter
   },  
   props: {
     title: String,
-    jsonData: Array,
-    visible: Boolean,
-    columns: Object
+    values: Array
   },
   data(){
     return {
-      showModal: false,
-      editor: null,
-      data: []
+      store,
+      editor: {
+        value: null,
+        mainMenuBar: false
+      },
+      saving: false
     }
   },
-  emits: ['onclickHide',"onEdit"],
-  watch: {
-    visible: function(newVal) {
-      this.showModal = newVal;
-      if(newVal){
-        this.setData();
-      }
-    }
+  emits: ['onclickHide',"onEdit","onSave"],
+  mounted(){
+    this.setData();
   },
   methods: {
-    setData(){
-      this.data = this.jsonData;
+    async setData(){
+      await this.$nextTick()
+      this.editor.value = [...this.values];
     },
     hideModal(){
       this.$emit('onclickHide',null);
     },
-    setEditor(){
-      this.editor = new window.JSONEditor(this.$refs.editor, {
-            mode: 'code',
-            modes: ['code', 'form', 'text', 'tree', 'view'],
-            theme: "ace/theme/pastel_on_dark"
-        });
-      this.editor.set({
-        foo: "bar"
-      });
-
-      this.$refs.editor.addEventListener('keyup', () => {
-        this.run();
-      }); 
+    handleChange(content){
+      const mapValues = this.store.modal.map;
+      this.store.values[mapValues.key] = content.json;
+      this.$emit('onEdit',null);
     },
-    run() {
-        try {
-            let json = this.editor.get();
-            console.log(json);
-            this.$emit('onEdit',json);
-        } catch (error) {         
-          console.error(error);
-        }
-    }    
+    async saveEntity(){
+      this.saving = true;
+      this.$nextTick(async ()=>{
+        await saveEntity(this.store.currentEntity,this.store.values);
+        this.saving = false;
+        this.$emit('onSave',null);
+      })
+    }
   }
 }
 </script>

@@ -6,7 +6,7 @@
         </tr>
     </thead>
     <tbody>
-        <TableRow v-for="(values,index) in store.data.items" :key="index" :items="mapValues(values)" 
+        <TableRow v-for="(item,index) in store.data.items" :key="index" :items="mapValues(item)"
         @on-update-click="onUpdateClick"
         @on-delete-click="onDeleteClick"
         @open-multiline-item="onOpenMultilineItem"
@@ -21,7 +21,7 @@ import HeaderCell from "./HeaderCell.vue";
 import TableRow from "./TableRow.vue";
 
 export default {
-    "name": "DataTable",
+    "name": "CrudDataTable",
     components: {
         HeaderCell,
         TableRow
@@ -47,20 +47,31 @@ export default {
     methods: {
         mapValues(values){
             let result = [];
-            let id = "";
             const columns = this.filterColumns();
-            
+            let key = {
+                field: null,
+                value: null
+            }
             for(const column of columns){
                 const value = values[column.name];
                 
                 if(column.isKey || column.name == "id"){
-                    id = value;
+                    key.field = column.name;
+                    key.value = value;
                 }
+
                 if(column.name == "crud-actions" && this.showActions){
-                    result.push({value: 'actions', id: id});
+                    result.push({
+                        id: key,
+                        key: column.name,
+                        label: 'Actions',
+                        value: 'actions',
+                        isMultiline: false
+                    });
                 }
                 else{
                     result.push({
+                        id: key,
                         key: column.name,
                         label: column.label,
                         value: value || "",

@@ -9,7 +9,7 @@
                 </button>
             </div>
         </DataCell>
-        <ActionsDataCell v-if="actionsItem!==null" :value="actionsItem.id" @onUpdateClick="onUpdateClick" @onDeleteClick="onDeleteClick"/>
+        <ActionsDataCell v-if="actionsItem!==null" :value="actionsItem" @onUpdateClick="onUpdateClick" @onDeleteClick="onDeleteClick"/>
     </tr>
 </template>
 

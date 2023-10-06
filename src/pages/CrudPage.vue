@@ -2,20 +2,20 @@
   <div class="d-flex flex-column vh-100">
     <NavBar />
     <CommandBar 
-    v-if="entity!==null"
+    v-if="store.entity!==null"
     @onClickAdd="openModalInsert" 
     @onClickRefresh="getData" 
     @on-toggle-view-mode="toggleViewMode"
-    :update="update"/>
+    :update="store.updatedAt"/>
     <CrudDataTable  
-      v-if="entity!==null && store.viewMode=='table'" 
+      v-if="store.entity!==null && store.viewMode=='table'" 
       @on-update-click="onEntityUpdateClick" 
       @on-delete-click="onEntityDeleteClick"
-      @openMultilineItem="openMultilineItem"/>
+      @openMultilineItem="openJsonModal"/>
     
-    <DataForm v-if="entity!==null && store.viewMode=='form'" @on-save="saveEntity"/>
+    <DataForm v-if="store.entity!==null && store.viewMode=='form'" @on-save="saveEntity"/>
 
-    <PaginationBar v-if="store.viewMode=='form'" :pages="paginationList" :value="store.form.itemNumber" @on-change="changePaginationItem"/>
+    <PaginationBar v-if="store.viewMode=='form'" :pages="store.form.pagination" :value="store.form.itemNumber" @on-change="changeFormPaginationItem"/>
 
     <DataTable 
     v-if="this.store.form.multilineEntity!=='' && store.viewMode=='form'" 
@@ -26,21 +26,22 @@
     />
 
     <EntityModal 
-    :title="modalTitle" 
+    :title="store.modal.title" 
     @onclickHide="closeModal" 
     @onSave="saveEntity"
-    v-if="entity!==null && modalVisible"/>
+    v-if="store.modal.type=='entity' && store.modal.visible"/>
     
     <SubEntityModal 
-    :title="modalTitle"
+    :title="store.modal.title"
     @onclickHide="closeModal" 
-    v-if="Object.keys(store.values).length>0 && modalVisible"/>
+    v-if="store.modal.type=='subEntity' && store.modal.visible"/>
 
     <JsonModal 
-    :title="jsonModalTitle" 
-    :visible="jsonModalVisible" 
-    :jsonData="jsonData" 
-    @onclick-hide="closeJsonModal"/>
+    v-if="store.modal.type=='json' && store.modal.visible"
+    :title="store.modal.title" 
+    :values="store.modal.values" 
+    @onclick-hide="closeJsonModal"
+    @onSave="saveEntity"/>
   </div>
 </template>
 
@@ -72,23 +73,15 @@ export default {
   },
   data(){
     return {
-      update: null,
-      entity: null,
-      store,
-      modalTitle: "",
-      modalVisible: false,
-      jsonData: [],
-      jsonModalTitle: "Items",
-      jsonModalVisible: false,
-      paginationList: []
+      store
     }
   },
   watch: {
     "store.currentEntity": {
       handler(value){
         const path = value.replace("\\","");
-        this.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
-        if(this.entity){
+        this.store.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
+        if(this.store.entity){
           this.loadEntity();
         }
       }
@@ -102,7 +95,7 @@ export default {
     }
   },
   mounted(){
-    this.entity = this.store.entities.find(p=> this.store.currentEntity.indexOf(p.path)>-1);
+    this.store.entity = this.store.entities.find(p=> this.store.currentEntity.indexOf(p.path)>-1);
     this.loadEntity();
   },
   methods: {
@@ -110,74 +103,81 @@ export default {
       this.getColumns();
       this.getData();
     },
-    setPaginationList(){
-      this.paginationList = this.store.data.items.map((_,index)=> index+1);
+    setFormPagination(){
+      this.store.form.pagination = this.store.data.items.map((_,index)=> index+1);
     },
     getColumns(){
-      if(this.entity){
-        this.store.data.fields = this.entity.fields;
+      if(this.store.entity){
+        this.store.data.fields = this.store.entity.fields;
       }
     },
     async getData(){
       this.store.data.items = await getAll(this.store.currentEntity);
-      this.setPaginationList();
+      this.setFormPagination();
       this.resetFormItemNumber();
       this.loadFormItem();
-      this.update = new Date();
+      this.store.updatedAt = new Date();
     },
     async openModalInsert(){
-      this.modalTitle = "Insert Item";
+      this.store.values = {};
       this.store.form.fields = this.store.data.fields;
-      this.store.form.item = null;
       this.store.form.action = "insert";
-      this.modalVisible = true;
+      this.store.modal.title = "Insert Item";
+      this.store.modal.type = "entity";
+      this.store.modal.visible = true;
     },
-    async onEntityUpdateClick(value){
-      const data = this.store.data.items.find(r=>r.id==value);
-      this.modalTitle = "Update Item";
+    async onEntityUpdateClick(data){
       this.store.form.fields = this.store.data.fields;
-      this.store.form.item = data;
+      this.store.values = this.store.data.items.find(r=>r[data.id.field]==data.id.value);
+      this.store.modal.map = data;
       this.store.form.action = "update";
-      this.modalVisible = true;
+      this.store.modal.title = "Update Item";
+      this.store.modal.type = "entity";
+      this.store.modal.visible = true;
     },
-    async onEntityDeleteClick(value){
-      const data = this.store.data.items.find(r=>r.id==value);
-      this.modalTitle = "Delete Item";
+    async onEntityDeleteClick(data){
       this.store.form.fields = this.store.data.fields;
-      this.store.form.item = data;
+      this.store.values = this.store.data.items.find(r=>r[data.id.field]==data.id.value);
+      this.store.modal.map = data;
       this.store.form.action = "delete";
-      this.modalVisible = true;
+      this.store.modal.title = "Delete Item";
+      this.store.modal.type = "entity";
+      this.store.modal.visible = true;
     },
     async onSubEntityUpdateClick(index){
-      const data = this.store.form.multilineItems[index];
       this.store.form.multilineIndex = index;
       this.store.form.multilineAction = "update";
-      this.modalTitle = "Update Item";
-      this.store.values = data;
-      this.modalVisible = true;
+      this.store.values = this.store.form.multilineItems[index];
+      this.store.modal.title = "Update Item";
+      this.store.modal.type = "subEntity";
+      this.store.modal.visible = true;
     },
     async onSubEntityDeleteClick(index){
-      const data = this.store.form.multilineItems[index];
       this.store.form.multilineIndex = index;
       this.store.form.multilineAction = "delete";
-      this.modalTitle = "Delete Item";
-      this.store.values = data;
-      this.modalVisible = true;
+      this.store.values = this.store.form.multilineItems[index];
+      this.store.modal.title = "Delete Item";
+      this.store.modal.type = "subEntity";
+      this.store.modal.visible = true;
     },
     async closeModal(){
-      this.modalVisible = false;
+      this.store.modal.visible = false;
+      this.store.modal.map = null;
     },
     closeJsonModal(){
-      this.jsonModalVisible = false;
+      this.store.modal.visible = false;
     },
     async saveEntity(){
-      this.modalVisible = false;
+      this.store.modal.visible = false;
       this.getData();
     },
-    openMultilineItem(data){
-      this.jsonData = data;
-      this.jsonModalTitle = data.label;
-      this.jsonModalVisible = true;
+    openJsonModal(data){
+      this.store.values = this.store.entities.find(entity=> entity[data.id.field] == data.id.value);
+      this.store.modal.values = data.value;
+      this.store.modal.map = data;
+      this.store.modal.title = data.label;
+      this.store.modal.type = "json";
+      this.store.modal.visible = true;
     },
     async toggleViewMode(value){
       this.store.viewMode = value;
@@ -194,10 +194,10 @@ export default {
       this.store.form.action = "";
       this.$nextTick(()=>{
         this.loadSubEntity();
-        this.setPaginationList();
+        this.setFormPagination();
       });
     },
-    changePaginationItem(value){
+    changeFormPaginationItem(value){
       this.store.form.itemNumber = value;
       this.loadFormItem();
     },
