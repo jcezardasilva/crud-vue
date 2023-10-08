@@ -22,6 +22,7 @@ const state = reactive({
         pagination: [],
         table: {
             index: 0,
+            name: "",
             entity: "",
             action: "update",
             fields: [],

@@ -38,7 +38,8 @@ export default {
   data(){
     return {
       store,
-      saving: false
+      saving: false,
+      visibleFields: null
     }
   },
   emits: ['onclickHide',"onSave"],
@@ -46,12 +47,14 @@ export default {
     hideModal(){
       this.$emit('onclickHide',null);
     },
+    mounted(){
+      this.visibleFields = this.filterFormFields();
+    },
     filterFormFields(){
-        const filtered = this.store.form.table.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
-        return filtered;
+        return this.store.modal.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
     },
     getFieldValue(columnName){
-        const index = this.store.form.table.index;
+        const index = this.store.form.table.index.id;
         const subEntity =this.store.form.table.items[index];
         return columnName && subEntity? subEntity[columnName] : "";
     }

@@ -16,14 +16,16 @@
     <DataForm v-if="store.entity!==null && store.viewMode=='form'" @on-save="saveEntity" @on-open-sub-entity="loadSubEntity"/>
 
     <PaginationBar v-if="store.viewMode=='form'" :pages="store.form.pagination" :value="store.form.itemNumber" @on-change="changeFormPaginationItem"/>
-
-    <DataTable 
-    v-if="this.store.form.table.entity!=='' && store.viewMode=='form'" 
-    :fields="store.form.table.fields" 
-    :items="store.form.table.items"
-    @on-update-click="onSubEntityUpdateClick"
-    @on-delete-click="onSubEntityDeleteClick"
-    />
+    <div v-if="this.store.form.table.entity!=='' && store.viewMode=='form'" >
+      <h5>{{ this.store.form.table.name + " | " + this.store.form.table.entity }}</h5>
+      <DataTable 
+      :fields="store.form.table.fields" 
+      :items="store.form.table.items"
+      @on-update-click="onSubEntityUpdateClick"
+      @on-delete-click="onSubEntityDeleteClick"
+      />
+    </div>
+    
 
     <EntityModal 
     :title="store.modal.title" 
@@ -174,14 +176,16 @@ export default {
       })
     },
     async onSubEntityDeleteClick(index){
-      this.store.form.table.entity = index;
-      this.store.form.table.action = "delete";
+      this.store.form.table.index = index;
       this.store.values = this.store.form.table.items[index];
       
-      this.store.modal.fields = this.store.form.table.fields;
-      this.store.modal.title = "Delete Item";
-      this.store.modal.type = "subEntity";
-      this.store.modal.visible = true;
+      this.store.modal = Object.assign(this.store.modal, {
+        action: "delete",
+        fields: this.store.form.table.fields,
+        title: "Delete Item",
+        type: "subEntity",
+        visible: true
+      })
     },
     async closeModal(){
       this.store.modal.visible = false;
@@ -226,12 +230,13 @@ export default {
       this.clearSubEntity();
     },
     loadSubEntity(item){
+      this.store.form.table.name = item.label;
       this.store.form.table.entity = item.dataType.replace("[]","");
       const entity = this.store.entities.find(e=> e.name === this.store.form.table.entity);
       if(entity === null) return;
       
       this.store.form.table.fields = entity.fields;
-      this.store.form.table.items = this.store.form[item.name];
+      this.store.form.table.items = this.store.form.item[item.name];
     },
     clearSubEntity(){
       this.store.form.table.entity = "";
