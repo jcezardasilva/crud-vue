@@ -10,7 +10,6 @@
 import NavBar from "@/components/NavBar.vue";
 import EntityViewer from "./viewers/EntityViewer.vue";
 import SubEntityTableViewer from "./viewers/SubEntityTableViewer.vue";
-import store from "@/core/store";
 
 export default {
   name: 'CrudPage',
@@ -18,11 +17,6 @@ export default {
     NavBar,
     EntityViewer,
     SubEntityTableViewer
-  },
-  data(){
-    return {
-      store
-    }
   }
 }
 </script>

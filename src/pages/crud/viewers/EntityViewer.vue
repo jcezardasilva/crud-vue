@@ -13,7 +13,12 @@
         @on-delete-click="onEntityDeleteClick"
         @openMultilineItem="openJsonModal"/>
         
-        <DataForm v-if="store.entity!==null && store.viewMode=='form'" @on-save="saveEntity" @on-open-sub-entity="loadSubEntity"/>
+        <DataForm 
+        v-if="store.entity!==null && store.viewMode=='form'" 
+        @on-save="saveEntity" 
+        @on-open-sub-entity="loadSubEntity"
+        :fields="store.form.fields"
+        :item="store.form.item"/>
         <PaginationBar v-if="store.viewMode=='form'" :pages="store.form.pagination" :value="store.form.itemNumber" @on-change="changeFormPaginationItem"/>
 
         <EntityModal 
@@ -40,7 +45,7 @@ import store from "@/core/store.js";
 import {getAll} from "@/core/crudService";
 
 export default {
-    name: 'HomePage',
+    name: 'EntityViewer',
     components: {
         EntityBar,
         CrudDataTable,

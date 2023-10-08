@@ -12,6 +12,7 @@ const state = reactive({
     },
     form: {
         action: "",
+        id: {},
         fields: [],
         item: {},
         itemNumber: 1,

@@ -11,6 +11,13 @@
             :disabled="disabled"
             >
         </div>
+        <CheckBox v-if="options.inputType==='checkbox'" 
+        :name="options.name" 
+        :label="options.label" 
+        :disabled="disabled" 
+        :value="value"
+        @change="changeValue"/>
+        
         <div class="mb-3" v-if="options.inputType=='textarea'">
             <label :for="fieldId" >{{options.label}}</label>
             <textarea 
@@ -26,13 +33,17 @@
 </template>
 
 <script>
+import CheckBox from "@/components/forms/CheckBox.vue";
 import store from "@/core/store";
 
 export default {
     name: "FormInput",
+    components: {
+        CheckBox
+    },
     props: {
         options: Object,
-        value: String,
+        value: [String,Boolean],
         disabled: Boolean
     },
     data(){

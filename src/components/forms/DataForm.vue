@@ -1,6 +1,6 @@
 <template>
     <div class="crud-form card p-3 mt-1 mb-1">
-        <div v-for="(input,index) in filterFormFields()" :key="index" >
+        <div v-for="(input,index) in fields" :key="index" >
           <FormInput v-if="!Array.isArray(this.store.form.item[input.name])" :value="this.store.form.item[input.name]" :options="input" />
           <FormListButton v-if="Array.isArray(this.store.form.item[input.name])" :name="input.name" :label="input.label" @on-click="openSubEntity(input)"/>
         </div>
@@ -14,7 +14,7 @@
   import FormFooter from "./FormFooter.vue";
   import FormListButton from "@/components/buttons/FormListButton.vue";
   import store from "@/core/store";
-  import {deleteEntity,saveEntity} from "@/core/crudService";
+  import {deleteEntity,saveEntity, getKey} from "@/core/crudService";
   
   export default {
     name: "DataForm",
@@ -30,12 +30,24 @@
         saving: false
       }
     },
+    props: {
+      fields: Array,
+      item: Object
+    },
     emits: ["onSave","onOpenSubEntity"],
-    mounted(){
-        this.formId = this.$uuidv4();
-    },    
+    watch: {
+      "item": {
+        handler(value,oldValue){
+          if(value!==oldValue){
+            this.init();
+          }
+        }
+      }
+    },
     methods: {
       init(){
+        this.formId = this.$uuidv4();
+        this.store.form.id = getKey(this.fields,this.item);
       },
       filterFormFields(){
           const filtered = this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
@@ -50,7 +62,7 @@
       async deleteEntity(){
         this.saving = true;
         this.$nextTick(async ()=>{
-          await deleteEntity(this.store.entity.path,this.store.values[this.store.modal.map.id.field]);
+          await deleteEntity(this.store.entity.path,this.store.values[this.store.form.id.field]);
           this.saving = false;
           this.$emit('onSave',null);
         })

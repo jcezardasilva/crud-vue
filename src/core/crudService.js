@@ -44,6 +44,64 @@ export async function deleteEntity(entity,id){
     });
     return await response.json();
 }
+
+export function getKey(fields,values){
+    if(!values){
+        return {};
+    }
+    for(const field of fields){
+        const value = values[field.name];
+        
+        if(field.isKey || field.name == "id"){
+            return {
+                field: field.name,
+                value: value
+            }
+        }
+    }
+}
+
+/**
+ * Map values for each column
+ * @param {*} fields 
+ * @param {*} values 
+ * @returns 
+ */
+export function mapValues(fields,values, showActions=true){
+    let result = [];
+    let key = {
+        field: null,
+        value: null
+    }
+    for(const field of fields){
+        const value = values[field.name];
+        
+        if(field.isKey || field.name == "id"){
+            key.field = field.name;
+            key.value = value;
+        }
+
+        if(field.name == "crud-actions" && showActions){
+            result.push({
+                id: key,
+                key: field.name,
+                label: 'Actions',
+                value: 'actions',
+                isMultiline: false
+            });
+        }
+        else{
+            result.push({
+                id: key,
+                key: field.name,
+                label: field.label,
+                value: value || "",
+                isMultiline: (field.dataType || "string").indexOf("[]")>-1,
+            })
+        }
+    }
+    return result;
+}
 /**
  * A CRUD service that uses the backend API.
  */
