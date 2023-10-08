@@ -4,6 +4,7 @@
           <FormInput v-if="!Array.isArray(this.store.form.item[input.name])" :value="this.store.form.item[input.name]" :options="input" />
           <FormListButton v-if="Array.isArray(this.store.form.item[input.name])" :name="input.name" :label="input.label" @on-click="openSubEntity(input)"/>
         </div>
+        <hr />
         <FormFooter @on-save="$emit('onSave')"/>
     </div>
   </template>
