@@ -35,7 +35,7 @@
         return !this.isSaving && this.showDelete;
       },
       isSaveVisible(){
-        return !this.isSaving && !this.showDelete;
+        return !this.isSaving && this.showSave;
       }
     }
   }

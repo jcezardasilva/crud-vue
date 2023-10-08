@@ -1,6 +1,6 @@
 import {createRouter,createWebHistory } from "vue-router";
 import Home from './pages/HomePage.vue';
-import Crud from "./pages/CrudPage.vue";
+import Crud from "./pages/crud/CrudPage.vue";
 import store from "./core/store";
 
 export const routes = [

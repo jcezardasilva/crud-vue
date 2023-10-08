@@ -5,10 +5,6 @@ const state = reactive({
     path: "/home",
     entity: {},
     values: {},
-    data: {
-        fields: [],
-        items: []
-    },
     viewMode: "table",
     table: {
         fields: [],

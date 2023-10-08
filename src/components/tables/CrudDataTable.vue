@@ -43,9 +43,11 @@ export default {
             }
         }
     },
-    emits: ['onUpdateClick','deleteEntity','openMultilineItem'],
+    emits: ['onUpdateClick','onDeleteClick','openMultilineItem'],
     mounted(){
-        this.fields = this.filterColumns();
+        this.$nextTick(()=>{
+            this.fields = this.filterColumns();
+        })
     },
     methods: {
         mapValues(values){

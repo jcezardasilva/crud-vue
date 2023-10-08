@@ -30,7 +30,11 @@ export default {
     data(){
         return {
             visiblePages: [],
-            activePage: 1
+            activePage: 1,
+            slice: {
+                start: 0,
+                end: 3
+            }
         }
     },
     emits: ["onChange"],
@@ -52,11 +56,31 @@ export default {
     },
     methods: {
         setVisiblePages(){
-            this.visiblePages = this.pages.length<=3? this.pages : this.pages.slice(0, 3);
+            this.visiblePages = this.pages.slice(this.slice.start, this.slice.end);
         },
         setActivePage(value){
             if(value<1) return;
             if(value>this.pages.length) return;
+
+            if(value > 1 && value < this.pages.length){
+                this.slice = {
+                    start: value-2,
+                    end: value+1
+                }
+            }
+            else if(value == 1 ){
+                this.slice = {
+                    start: 0,
+                    end: 3
+                }
+            }
+            else if(value == this.pages.length){
+                this.slice = {
+                    start: value-3,
+                    end: this.pages.length
+                }
+            }
+            this.setVisiblePages();
 
             this.activePage=value;
             this.$emit("onChange",value);

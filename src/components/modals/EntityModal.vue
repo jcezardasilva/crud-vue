@@ -53,6 +53,7 @@ export default {
   },
   methods: {
     hideModal(){
+      this.store.modal.visible = false;
       this.$emit('onclickHide',null);
     },
     filterFormFields(){
@@ -74,6 +75,7 @@ export default {
       this.$nextTick(async ()=>{
         await saveEntity(this.store.entity.path,this.store.values);
         this.saving = false;
+        this.store.modal.visible = false;
         this.$emit('onSave',null);
       })
     }

@@ -70,6 +70,7 @@ export default {
       this.editor.value = [...this.values];
     },
     hideModal(){
+      this.store.modal.visible = false;
       this.$emit('onclickHide',null);
     },
     handleChange(content){
@@ -82,6 +83,8 @@ export default {
       this.$nextTick(async ()=>{
         await saveEntity(this.store.path,this.store.values);
         this.saving = false;
+        this.store.modal.visible = false;
+        this.store.modal.map = null;
         this.$emit('onSave',null);
       })
     }

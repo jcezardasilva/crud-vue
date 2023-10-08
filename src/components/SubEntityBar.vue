@@ -19,7 +19,7 @@
 <script>
 import { toISOString } from '@/core/dateService';
 export default {
-    name: "CommandBar",
+    name: "SubEntityBar",
     emits: ["onClickAdd","onClickRefresh", "onToggleViewMode"],
     props: {
       update: {
