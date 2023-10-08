@@ -80,7 +80,7 @@ export default {
     async saveEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        await saveEntity(this.store.currentEntity,this.store.values);
+        await saveEntity(this.store.path,this.store.values);
         this.saving = false;
         this.$emit('onSave',null);
       })

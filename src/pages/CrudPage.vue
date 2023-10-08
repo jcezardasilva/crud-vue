@@ -4,7 +4,7 @@
     <CommandBar 
     v-if="store.entity!==null"
     @onClickAdd="openModalInsert" 
-    @onClickRefresh="getData" 
+    @onClickRefresh="getItems" 
     @on-toggle-view-mode="toggleViewMode"
     :update="store.updatedAt"/>
     <CrudDataTable  
@@ -13,14 +13,14 @@
       @on-delete-click="onEntityDeleteClick"
       @openMultilineItem="openJsonModal"/>
     
-    <DataForm v-if="store.entity!==null && store.viewMode=='form'" @on-save="saveEntity"/>
+    <DataForm v-if="store.entity!==null && store.viewMode=='form'" @on-save="saveEntity" @on-open-sub-entity="loadSubEntity"/>
 
     <PaginationBar v-if="store.viewMode=='form'" :pages="store.form.pagination" :value="store.form.itemNumber" @on-change="changeFormPaginationItem"/>
 
     <DataTable 
-    v-if="this.store.form.multilineEntity!=='' && store.viewMode=='form'" 
-    :fields="store.form.multilineFields" 
-    :items="store.form.multilineItems"
+    v-if="this.store.form.table.entity!=='' && store.viewMode=='form'" 
+    :fields="store.form.table.fields" 
+    :items="store.form.table.items"
     @on-update-click="onSubEntityUpdateClick"
     @on-delete-click="onSubEntityDeleteClick"
     />
@@ -77,8 +77,12 @@ export default {
     }
   },
   watch: {
-    "store.currentEntity": {
-      handler(value){
+    "store.path": {
+      handler(value, oldValue){
+        if(value==oldValue)
+        {
+          return;
+        }
         const path = value.replace("\\","");
         this.store.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
         if(this.store.entity){
@@ -95,24 +99,24 @@ export default {
     }
   },
   mounted(){
-    this.store.entity = this.store.entities.find(p=> this.store.currentEntity.indexOf(p.path)>-1);
+    this.store.entity = this.store.entities.find(p=> this.store.path.indexOf(p.path)>-1);
     this.loadEntity();
   },
   methods: {
     async loadEntity(){
-      this.getColumns();
-      this.getData();
+      this.getFields();
+      this.getItems();
     },
     setFormPagination(){
-      this.store.form.pagination = this.store.data.items.map((_,index)=> index+1);
+      this.store.form.pagination = this.store.table.items.map((_,index)=> index+1);
     },
-    getColumns(){
+    getFields(){
       if(this.store.entity){
-        this.store.data.fields = this.store.entity.fields;
+        this.store.table.fields = this.store.entity.fields;
       }
     },
-    async getData(){
-      this.store.data.items = await getAll(this.store.currentEntity);
+    async getItems(){
+      this.store.table.items = await getAll(this.store.entity.path);
       this.setFormPagination();
       this.resetFormItemNumber();
       this.loadFormItem();
@@ -120,42 +124,61 @@ export default {
     },
     async openModalInsert(){
       this.store.values = {};
-      this.store.form.fields = this.store.data.fields;
       this.store.form.action = "insert";
-      this.store.modal.title = "Insert Item";
-      this.store.modal.type = "entity";
-      this.store.modal.visible = true;
+
+      this.store.modal = Object.assign(this.store.modal,{
+        fields: this.store.table.fields,
+        title: "Insert Item",
+        action: "insert",
+        type: "entity",
+        visible: true
+      })
     },
     async onEntityUpdateClick(data){
-      this.store.form.fields = this.store.data.fields;
-      this.store.values = this.store.data.items.find(r=>r[data.id.field]==data.id.value);
-      this.store.modal.map = data;
+      this.store.values = this.store.table.items.find(r=>r[data.id.field]==data.id.value);
       this.store.form.action = "update";
-      this.store.modal.title = "Update Item";
-      this.store.modal.type = "entity";
-      this.store.modal.visible = true;
+
+      this.store.modal = Object.assign(this.store.modal,{
+        map: data,
+        fields: this.store.table.fields,
+        title: "Update Item",
+        action: "update",
+        type: "entity",
+        visible: true
+      })
     },
     async onEntityDeleteClick(data){
-      this.store.form.fields = this.store.data.fields;
-      this.store.values = this.store.data.items.find(r=>r[data.id.field]==data.id.value);
-      this.store.modal.map = data;
+      this.store.values = this.store.table.items.find(r=>r[data.id.field]==data.id.value);
       this.store.form.action = "delete";
-      this.store.modal.title = "Delete Item";
-      this.store.modal.type = "entity";
-      this.store.modal.visible = true;
+      
+      this.store.modal = Object.assign(this.store.modal,{
+        map: data,
+        fields: this.store.table.fields,
+        title: "Delete Item",
+        action: "update",
+        type: "entity",
+        visible: true
+      })
     },
     async onSubEntityUpdateClick(index){
-      this.store.form.multilineIndex = index;
-      this.store.form.multilineAction = "update";
-      this.store.values = this.store.form.multilineItems[index];
-      this.store.modal.title = "Update Item";
-      this.store.modal.type = "subEntity";
-      this.store.modal.visible = true;
+      this.store.form.table.index = index;
+      this.store.form.table.action = "update";
+      this.store.values = this.store.form.table.items[index];
+      
+      this.store.modal = Object.assign(this.store.modal, {
+        action: "update",
+        fields: this.store.form.table.fields,
+        title: "Update Item",
+        type: "subEntity",
+        visible: true
+      })
     },
     async onSubEntityDeleteClick(index){
-      this.store.form.multilineIndex = index;
-      this.store.form.multilineAction = "delete";
-      this.store.values = this.store.form.multilineItems[index];
+      this.store.form.table.entity = index;
+      this.store.form.table.action = "delete";
+      this.store.values = this.store.form.table.items[index];
+      
+      this.store.modal.fields = this.store.form.table.fields;
       this.store.modal.title = "Delete Item";
       this.store.modal.type = "subEntity";
       this.store.modal.visible = true;
@@ -169,10 +192,12 @@ export default {
     },
     async saveEntity(){
       this.store.modal.visible = false;
-      this.getData();
+      this.getItems();
     },
     openJsonModal(data){
       this.store.values = this.store.entities.find(entity=> entity[data.id.field] == data.id.value);
+      
+      this.store.modal.fields = this.store.form.table.fields;
       this.store.modal.values = data.value;
       this.store.modal.map = data;
       this.store.modal.title = data.label;
@@ -181,45 +206,37 @@ export default {
     },
     async toggleViewMode(value){
       this.store.viewMode = value;
-      await this.getData();
+      await this.getItems();
     },
     resetFormItemNumber(){
       this.store.form.itemNumber = 1;
     },
     async loadFormItem(){
       if(store.viewMode!=="form") return;
-      
-      this.store.form.fields = this.store.data.fields;
-      this.store.form.item = this.store.data.items[this.store.form.itemNumber-1];
+      this.store.form.fields = this.store.table.fields;
+      this.store.form.item = this.store.table.items[this.store.form.itemNumber-1];
       this.store.form.action = "";
       this.$nextTick(()=>{
-        this.loadSubEntity();
         this.setFormPagination();
       });
     },
     changeFormPaginationItem(value){
       this.store.form.itemNumber = value;
       this.loadFormItem();
+      this.clearSubEntity();
     },
-    loadSubEntity(){
-      const multiline = this.store.form.fields.filter(f=> f.dataType.indexOf("[]")>-1);
-      if(multiline.length==0){
-        this.store.form.multilineEntity = "";
-        this.store.form.multilineItems = [];
-        this.store.form.multilineFields = [];
-        return;
-      }
-      const item = multiline[0];
-      this.store.form.multilineEntity = item.dataType.replace("[]","");
-      const entity = this.store.entities.find(e=> e.name === this.store.form.multilineEntity);
-      if(entity === null)
-      {
-        this.store.form.multilineFields = [];
-        this.store.form.multilineItems = [];
-        return;
-      }
-      this.store.form.multilineFields = entity.fields;
-      this.store.form.multilineItems = this.store.form[item.name];
+    loadSubEntity(item){
+      this.store.form.table.entity = item.dataType.replace("[]","");
+      const entity = this.store.entities.find(e=> e.name === this.store.form.table.entity);
+      if(entity === null) return;
+      
+      this.store.form.table.fields = entity.fields;
+      this.store.form.table.items = this.store.form[item.name];
+    },
+    clearSubEntity(){
+      this.store.form.table.entity = "";
+      this.store.form.table.fields = [];
+      this.store.form.table.items = [];
     }
   }
 }

@@ -2,11 +2,11 @@
     <table class="table table-hover table-bordered table-sm">
     <thead>
         <tr>
-            <HeaderCell scope="col" v-for="(col,index) in filterColumns()" :key="index">{{col.label}}</HeaderCell>
+            <HeaderCell scope="col" v-for="(col,index) in fields" :key="index">{{col.label}}</HeaderCell>
         </tr>
     </thead>
     <tbody>
-        <TableRow v-for="(item,index) in store.data.items" :key="index" :items="mapValues(item)"
+        <TableRow v-for="(item,index) in store.table.items" :key="index" :items="mapValues(item)"
         @on-update-click="onUpdateClick"
         @on-delete-click="onDeleteClick"
         @open-multiline-item="onOpenMultilineItem"
@@ -44,6 +44,9 @@ export default {
         }
     },
     emits: ['onUpdateClick','deleteEntity','openMultilineItem'],
+    mounted(){
+        this.fields = this.filterColumns();
+    },
     methods: {
         mapValues(values){
             let result = [];
@@ -82,7 +85,7 @@ export default {
             return result;
         },
         filterColumns(){
-            let columns = [...this.store.data.fields];
+            let columns = [...this.store.table.fields];
             if(this.showActions){
                 columns = columns.concat([this.actionsColumn]);
             }

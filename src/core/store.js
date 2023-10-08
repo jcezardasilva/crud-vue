@@ -2,27 +2,35 @@ import { reactive} from "vue";
 
 const state = reactive({
     entities: [],
-    currentEntity: "/home",
-    entity: null,
+    path: "/home",
+    entity: {},
     values: {},
     data: {
         fields: [],
         items: []
     },
     viewMode: "table",
+    table: {
+        fields: [],
+        items: []
+    },
     form: {
         action: "",
         fields: [],
         item: {},
         itemNumber: 1,
         pagination: [],
-        multilineEntity: "",
-        multilineFields: [],
-        multilineItems: [],
-        multilineIndex: 0,
-        multilineAction: "update"
+        table: {
+            index: 0,
+            entity: "",
+            action: "update",
+            fields: [],
+            items: []
+        }
     },
     modal: {
+        action: "",
+        fields: [],
         map: null,
         visible: false,
         title: "",

@@ -18,7 +18,7 @@ export function router(){
     routes,
   })
   router.beforeEach((to, from, next) => {
-    store.currentEntity = to.path;
+    store.path = to.path;
     next();
   });
 

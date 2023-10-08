@@ -2,7 +2,7 @@
 <template>
     <nav aria-label="Page navigation example">
     <ul class="pagination">
-        <li class="page-item">
+        <li class="page-item" @click="setActivePage(activePage-1)">
             <a class="page-link" href="#" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </a>
@@ -12,7 +12,7 @@
             <a class="page-link" href="#">{{ item }}</a>
         </li>
 
-        <li class="page-item">
+        <li class="page-item" @click="setActivePage(activePage+1)">
             <a class="page-link" href="#" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
             </a>
@@ -55,6 +55,9 @@ export default {
             this.visiblePages = this.pages.length<=3? this.pages : this.pages.slice(0, 3);
         },
         setActivePage(value){
+            if(value<1) return;
+            if(value>this.pages.length) return;
+
             this.activePage=value;
             this.$emit("onChange",value);
         }

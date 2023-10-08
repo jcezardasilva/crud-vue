@@ -38,8 +38,7 @@ export default {
     FormFooter
   },
   props: {
-    title: String,
-    columns: Object
+    title: String
   },
   data(){
     return {
@@ -57,7 +56,7 @@ export default {
       this.$emit('onclickHide',null);
     },
     filterFormFields(){
-        return this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
+        return this.store.modal.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
     },
     getFieldValue(columnName){
         return columnName && this.store.values? this.store.values[columnName] : "";
@@ -65,7 +64,7 @@ export default {
     async deleteEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        await deleteEntity(this.store.currentEntity,this.store.values[this.store.modal.map.id.field]);
+        await deleteEntity(this.store.entity.path,this.store.values[this.store.modal.map.id.field]);
         this.saving = false;
         this.$emit('onSave',null);
       })
@@ -73,7 +72,7 @@ export default {
     async saveEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        await saveEntity(this.store.currentEntity,this.store.values);
+        await saveEntity(this.store.entity.path,this.store.values);
         this.saving = false;
         this.$emit('onSave',null);
       })

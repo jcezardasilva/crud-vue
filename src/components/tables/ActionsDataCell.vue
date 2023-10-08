@@ -17,7 +17,7 @@ export default {
         DataCell
     },
     props: {
-        value: String
+        value: Object
     },
     emits: ["onUpdateClick","onDeleteClick"]
 }
