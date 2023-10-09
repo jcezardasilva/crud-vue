@@ -3,13 +3,9 @@
         <HeaderCell scope="row">{{headerItem.value}}</HeaderCell>
         <DataCell v-for="(item,index) in dataItems" :key="index">
             <span v-if="item.value!=='actions' && !item.isMultiline">{{item.value}}</span>
-            <div v-if="item.isMultiline">
-                <button class="btn btn-secondary me-2" @click="onOpenMultilineItem(item)">
-                    <font-awesome-icon icon="fa-solid fa-list"/>
-                </button>
-            </div>
+            <ListButton v-if="item.isMultiline" @click="onOpenMultilineItem(item)"/>
         </DataCell>
-        <ActionsDataCell v-if="actionsItem!==null" :value="actionsItem.id" @onUpdateClick="onUpdateClick" @onDeleteClick="onDeleteClick"/>
+        <ActionsDataCell v-if="actionsItem!==null" :value="actionsItem" @onUpdateClick="onUpdateClick" @onDeleteClick="onDeleteClick"/>
     </tr>
 </template>
 
@@ -17,12 +13,14 @@
 import ActionsDataCell from './ActionsDataCell.vue';
 import DataCell from './DataCell.vue';
 import HeaderCell from './HeaderCell.vue';
+import ListButton from "@/components/buttons/ListButton.vue";
 export default {
     name: "TableRow",
     components: {
         ActionsDataCell,
         DataCell,
-        HeaderCell
+        HeaderCell,
+        ListButton
     },
     data(){
         return {

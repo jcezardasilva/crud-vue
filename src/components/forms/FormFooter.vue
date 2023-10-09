@@ -14,16 +14,9 @@
     </div>
   </template>
   
-  <script>
-  import store from "@/core/store";
-  
+  <script>  
   export default {
     name: "FormFooter",
-    data(){
-      return {
-        store
-      }
-    },
     props: {
       isSaving: Boolean,
       showDelete: Boolean,
@@ -35,7 +28,7 @@
         return !this.isSaving && this.showDelete;
       },
       isSaveVisible(){
-        return !this.isSaving && !this.showDelete;
+        return !this.isSaving && this.showSave;
       }
     }
   }

@@ -4,6 +4,7 @@
             "save": "Save",
             "delete": "Delete",
             "cancel": "Cancel",
+            "close": "Close",
             "delete-tooltip": "Remove from the repository",
             "save-tooltip": "Save the changes on repository"
         }

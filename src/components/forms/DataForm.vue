@@ -1,48 +1,79 @@
 <template>
     <div class="crud-form card p-3 mt-1 mb-1">
-        <div class="">
-          <FormInput 
-            v-for="(input,index) in filterFormFields()" 
-            :key="index" 
-            :options="input" 
-            :value="getFieldValue(input.name)" />
+        <div v-for="(input,index) in fields" :key="index" >
+          <FormInput v-if="!Array.isArray(this.store.form.item[input.name])" :value="this.store.form.item[input.name]" :options="input" />
+          <FormListButton v-if="Array.isArray(this.store.form.item[input.name])" :name="input.name" :label="input.label" @on-click="openSubEntity(input)"/>
         </div>
-        <FormFooter @on-save="$emit('onSave')"/>
+        <hr />
+        <FormFooter @on-save="$emit('onSave')" :show-delete="true" :show-save="true" @on-save-click="saveEntity" @on-delete-click="deleteEntity"/>
     </div>
   </template>
   
   <script>
   import FormInput from "./FormInput.vue";
   import FormFooter from "./FormFooter.vue";
+  import FormListButton from "@/components/buttons/FormListButton.vue";
   import store from "@/core/store";
+  import {deleteEntity,saveEntity, getKey} from "@/core/crudService";
   
   export default {
     name: "DataForm",
     components: {
       FormInput,
-      FormFooter
+      FormFooter,
+      FormListButton
     },
     data(){
       return {
+        formId: null,
         store,
         saving: false
       }
     },
-    emits: ["onSave"],
-  watch: {
-    "store.form.item": function(newVal,oldValue) {
-      if(newVal!==oldValue){
-        this.store.values = {...this.store.form.item};
+    props: {
+      fields: Array,
+      item: Object
+    },
+    emits: ["onSave","onOpenSubEntity"],
+    watch: {
+      "item": {
+        handler(value,oldValue){
+          if(value!==oldValue){
+            this.init();
+          }
+        }
       }
-    }
-  },
+    },
     methods: {
+      init(){
+        this.formId = this.$uuidv4();
+        this.store.form.id = getKey(this.fields,this.item);
+      },
       filterFormFields(){
           const filtered = this.store.form.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
           return filtered;
       },
-      getFieldValue(columnName){
-          return columnName && this.store.form.item? this.store.form.item[columnName] : "";
+      createId(value){
+        return this.$uuidv4() + value;
+      },
+      openSubEntity(item){
+        this.$emit('onOpenSubEntity',item);
+      },
+      async deleteEntity(){
+        this.saving = true;
+        this.$nextTick(async ()=>{
+          await deleteEntity(this.store.entity.path,this.store.values[this.store.form.id.field]);
+          this.saving = false;
+          this.$emit('onSave',null);
+        })
+      },
+      async saveEntity(){
+        this.saving = true;
+        this.$nextTick(async ()=>{
+          await saveEntity(this.store.entity.path,this.store.values);
+          this.saving = false;
+          this.$emit('onSave',null);
+        })
       }
     }
   }
