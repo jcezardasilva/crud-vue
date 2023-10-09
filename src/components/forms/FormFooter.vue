@@ -14,16 +14,9 @@
     </div>
   </template>
   
-  <script>
-  import store from "@/core/store";
-  
+  <script>  
   export default {
     name: "FormFooter",
-    data(){
-      return {
-        store
-      }
-    },
     props: {
       isSaving: Boolean,
       showDelete: Boolean,

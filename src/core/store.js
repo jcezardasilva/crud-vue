@@ -18,6 +18,7 @@ const state = reactive({
         itemNumber: 1,
         pagination: [],
         table: {
+            map: null,
             index: 0,
             name: "",
             entity: "",

@@ -14,6 +14,7 @@
 <script>
 import TableHead from "./TableHead.vue";
 import TableRow from "./TableRow.vue";
+import { mapValues } from "@/core/crudService";
 
 export default {
     "name": "DataTable",
@@ -22,6 +23,7 @@ export default {
         TableRow
     },
     props: {
+        name: String,
         fields: Array,
         items: Array,
         showActions: {
@@ -41,54 +43,44 @@ export default {
         }
     },
     emits: ['onUpdateClick','onDeleteClick','openMultilineItem'],
+    watch: {
+        "fields": {
+            handler(value){
+                this.loadFields(value);
+            }
+        },
+        "items": {
+            handler(value){
+                this.loadItems(value);
+            }
+        },
+    },
     mounted(){
-        this.filterColumns();
-        this.mapItems();
+        this.init();
     },
     methods: {
-        mapItems(){
+        async init(){
+            this.loadFields();
+            this.loadItems();
+        },
+        loadItems(){
             let result = [];
-            [...this.items].forEach((item,i)=>{
-                result.push(this.mapValues(item,i));
+            this.items.forEach((item,i)=>{
+                result.push(mapValues(this.tableFields,item,i));
             })
             this.tableItems = result;
         },
-        mapValues(values, i){
-            let result = [];
-            let id = "";
-            const columns = this.filterColumns();
-            
-            columns.forEach((column)=>{
-
-                const value = values[column.name];
-                
-                if(column.isKey || column.name == "id"){
-                    id = value;
-                }
-                if(column.name == "crud-actions" && this.showActions){
-                    result.push({value: 'actions', id: id || i.toString()});
-                }
-                else{
-                    result.push({
-                        key: column.name,
-                        label: column.label,
-                        value: value || "",
-                        isMultiline: (column.dataType || "string").indexOf("[]")>-1,
-                    })
-                }
-            })
-            return result;
-        },
-        filterColumns(){
-            let columns = [...this.fields];
-            if(this.showActions){
-                columns.push({
+        loadFields(){
+            let fields = this.fields;
+            let actionsField = this.fields.find(f=>f.name=="crud-actions");
+            if(this.showActions && !actionsField){
+                fields.push({
                     name: "crud-actions",
                     label: "Actions",
                     visibleOnForm: false
                 });
             }
-            this.tableFields = columns.filter(column => [undefined,true].includes(column.visibleOnTable));
+            this.tableFields = fields.filter(column => [undefined,true].includes(column.visibleOnTable));
             return this.tableFields;
         },
         onUpdateClick(value){

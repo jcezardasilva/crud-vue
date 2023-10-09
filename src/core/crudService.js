@@ -67,7 +67,8 @@ export function getKey(fields,values){
  * @param {*} values 
  * @returns 
  */
-export function mapValues(fields,values, showActions=true){
+export function mapValues(fields,values, index, showActions=true){
+    if(values==null) return;
     let result = [];
     let key = {
         field: null,
@@ -78,12 +79,12 @@ export function mapValues(fields,values, showActions=true){
         
         if(field.isKey || field.name == "id"){
             key.field = field.name;
-            key.value = value;
+            key.value = value || index;
         }
 
         if(field.name == "crud-actions" && showActions){
             result.push({
-                id: key,
+                id: key.field ? key : index.toString(),
                 key: field.name,
                 label: 'Actions',
                 value: 'actions',
@@ -92,7 +93,7 @@ export function mapValues(fields,values, showActions=true){
         }
         else{
             result.push({
-                id: key,
+                id: key.field ? key : index.toString(),
                 key: field.name,
                 label: field.label,
                 value: value || "",

@@ -11,7 +11,7 @@
         <FormInput v-for="(input,index) in filterFormFields()" :key="index" :options="input" :value="getFieldValue(input.name)" :disabled="store.modal.action=='delete'"/>
       </div>
       <div class="modal-footer">
-        <FormFooter @on-save="$emit('onSave')" :show-delete="store.modal.action=='delete'" :show-save="store.modal.action!=='delete'">
+        <FormFooter @onSaveClick="saveEntity" @onDeleteClick="deleteSubEntity" :show-delete="store.modal.action=='delete'" :show-save="store.modal.action!=='delete'">
           <button type="button" @click="hideModal" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("form.footer.cancel")}}</button>
         </FormFooter>
       </div>
@@ -23,6 +23,7 @@
 <script>
 import FormInput from "@/components/forms/FormInput.vue";
 import FormFooter from "@/components/forms/FormFooter.vue";
+import { saveEntity } from "@/core/crudService";
 import store from "@/core/store";
 
 export default {
@@ -54,9 +55,35 @@ export default {
         return this.store.modal.fields.filter(c =>[undefined,true].includes(c.visibleOnForm));
     },
     getFieldValue(columnName){
-        const index = this.store.form.table.index.id;
+        const index = this.store.form.table.index;
         const subEntity =this.store.form.table.items[index];
-        return columnName && subEntity? subEntity[columnName] : "";
+        return subEntity[columnName];
+    },
+    async deleteSubEntity(){
+      this.saving = true;
+      this.$nextTick(async ()=>{
+        this.store.form.item[this.store.form.table.name] = this.store.form.item[this.store.form.table.name].filter(v=> v.name !== this.store.values.name);
+        await saveEntity(this.store.entity.path,this.store.form.item);
+        this.saving = false;
+        this.store.modal.visible = false;
+        this.$emit('onSave',null);
+      })
+    },
+    async saveEntity(){
+      this.saving = true;
+      this.$nextTick(async ()=>{
+        
+        this.store.form.item[this.store.form.table.name] = this.store.form.item[this.store.form.table.name].map(v=> {
+          if(v.name === this.store.values.name){
+            return this.store.values;
+          }
+          return v;
+        });
+        await saveEntity(this.store.entity.path,this.store.form.item);
+        this.saving = false;
+        this.store.modal.visible = false;
+        this.$emit('onSave',null);
+      })
     }
   }
 }

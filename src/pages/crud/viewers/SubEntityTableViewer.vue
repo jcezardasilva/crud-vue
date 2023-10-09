@@ -1,7 +1,8 @@
 <template>
-<div v-if="this.store.form.table.entity!=='' && store.viewMode=='form'" >
-      <h5>{{ this.store.form.table.name + " | " + this.store.form.table.entity }}</h5>
+<div v-if="store.form.table.entity!=='' && store.viewMode=='form'" >
+      <h5>{{ store.form.table.label + " | " + store.form.table.entity }}</h5>
       <DataTable 
+      :name="store.form.table.name"
       :fields="store.form.table.fields" 
       :items="store.form.table.items"
       @on-update-click="onSubEntityUpdateClick"
@@ -11,6 +12,7 @@
     <SubEntityModal 
     :title="store.modal.title"
     @onclickHide="onCloseModal" 
+    @on-save="onSave"
     v-if="store.modal.type=='subEntity' && store.modal.visible"/>
 </div>    
 </template>
@@ -31,12 +33,13 @@
             store
         }
     },
-    emits: ["onSubEntityUpdateClick","onSubEntityDeleteClick","onCloseModal"],
+    emits: ["onSubEntityUpdateClick","onSubEntityDeleteClick","onCloseModal", "onSave"],
     methods: {
         onSubEntityUpdateClick(value){
-            this.store.form.table.index = value;
-            this.store.form.table.action = "update";
-            this.store.values = this.store.form.table.items[value];
+            const index = value.id.value || value.id;
+            this.store.form.table.index = index;
+            this.store.form.table.map = value.id;
+            this.store.values = this.store.form.table.items[index];
             
             this.store.modal = Object.assign(this.store.modal, {
                 action: "update",
@@ -48,8 +51,10 @@
             this.$emit('onSubEntityUpdateClick',value);
         },
         onSubEntityDeleteClick(value){
-            this.store.form.table.index = value;
-            this.store.values = this.store.form.table.items[value];
+            const index = value.id.value || value.id;
+            this.store.form.table.index = index;
+            this.store.form.table.map = value;
+            this.store.values = this.store.form.table.items[index];
             
             this.store.modal = Object.assign(this.store.modal, {
                 action: "delete",
@@ -64,6 +69,9 @@
             this.store.modal.visible = false;
             this.store.modal.map = null;
             this.$emit("onCloseModal");
+        },
+        onSave(){
+            this.$emit('onSave');
         }
     }
   }

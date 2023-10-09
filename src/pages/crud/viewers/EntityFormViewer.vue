@@ -7,97 +7,78 @@
         @on-toggle-view-mode="toggleViewMode"
         :update="store.updatedAt"/>
 
-        <CrudDataTable  
-        v-if="store.entity!==null && store.viewMode=='table'" 
-        @on-update-click="onEntityUpdateClick" 
-        @on-delete-click="onEntityDeleteClick"
-        @openMultilineItem="openJsonModal"/>
-        
         <DataForm 
-        v-if="store.entity!==null && store.viewMode=='form'" 
+        v-if="store.entity!==null && store.form.item!=null && store.viewMode=='form'" 
         @on-save="saveEntity" 
         @on-open-sub-entity="loadSubEntity"
         :fields="store.form.fields"
         :item="store.form.item"/>
-        <PaginationBar v-if="store.viewMode=='form'" :pages="store.form.pagination" :value="store.form.itemNumber" @on-change="changeFormPaginationItem"/>
 
-        <EntityModal 
-        :title="store.modal.title" 
-        @onSave="saveEntity"
-        v-if="store.modal.type=='entity' && store.modal.visible"/>        
-
-        <JsonModal 
-        v-if="store.modal.type=='json' && store.modal.visible"
-        :title="store.modal.title" 
-        :values="store.modal.values" 
-        @onSave="saveEntity"/>        
+        <PaginationBar 
+        v-if="store.viewMode=='form' && store.form.item!=null" 
+        :pages="store.form.pagination" 
+        :value="store.form.itemNumber" 
+        @on-change="changeFormPaginationItem"/>   
+        
+        <SubEntityTableViewer @on-save="onSaveSubEntity"/>
     </div>
 </template>
   
 <script>
 import EntityBar from '@/components/EntityBar.vue';
-import CrudDataTable from '@/components/tables/CrudDataTable.vue';
 import DataForm from '@/components/forms/DataForm.vue';
-import EntityModal from "@/components/modals/EntityModal.vue";
-import JsonModal from '@/components/modals/JsonModal.vue';
 import PaginationBar from "@/components/PaginationBar.vue";
+import SubEntityTableViewer from "@/pages/crud/viewers/SubEntityTableViewer.vue";
 import store from "@/core/store.js";
 import {getAll} from "@/core/crudService";
 
 export default {
-    name: 'EntityViewer',
+    name: 'EntityFormViewer',
     components: {
         EntityBar,
-        CrudDataTable,
         DataForm,
-        EntityModal,
-        JsonModal,
-        PaginationBar
+        PaginationBar,
+        SubEntityTableViewer
     },
     data(){
         return {
-            store
+            store,
+            fields: [],
+            items: []
+        }
+    },
+    watch: {
+        "store.path": {
+            handler(value, oldValue){
+                if(value==oldValue)
+                {
+                    return;
+                }
+                const path = value.replace("\\","");
+                this.store.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
+                if(this.store.entity){
+                    this.loadEntity();
+                }
+            }
         }
     },
     mounted(){
         this.store.entity = this.store.entities.find(p=> this.store.path.indexOf(p.path)>-1);
         this.loadEntity();
     },
-    watch: {
-        "store.path": {
-        handler(value, oldValue){
-            if(value==oldValue)
-            {
-            return;
-            }
-            const path = value.replace("\\","");
-            this.store.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
-            if(this.store.entity){
-            this.loadEntity();
-            }
-        }
-        }
-    },
     methods: {
         async loadEntity(){
-            this.getFields();
-            this.getItems();
+            await this.getItems();
             this.clearSubEntity();
         },
         setFormPagination(){
             this.store.form.pagination = this.store.table.items.map((_,index)=> index+1);
         },
-        getFields(){
-            if(this.store.entity){
-                this.store.table.fields = this.store.entity.fields;
-            }
-        },
         async getItems(){
-            this.store.table.items = await getAll(this.store.entity.path);
+            this.store.table.fields = this.store.entity.fields;
+            this.store.table.items = await getAll(this.store.path);
             this.setFormPagination();
-            if(this.store.viewMode=="table"){
-                this.resetFormItemNumber();
-            }
+            
             this.loadFormItem();
             this.store.updatedAt = new Date();
         },
@@ -156,7 +137,8 @@ export default {
         },
         
         loadSubEntity(item){
-            this.store.form.table.name = item.label;
+            this.store.form.table.name = item.name;
+            this.store.form.table.label = item.label;
             this.store.form.table.entity = item.dataType.replace("[]","");
             const entity = this.store.entities.find(e=> e.name === this.store.form.table.entity);
             if(entity === null) return;
@@ -168,6 +150,9 @@ export default {
             this.store.form.table.entity = "";
             this.store.form.table.fields = [];
             this.store.form.table.items = [];
+        },
+        onSaveSubEntity(){
+            this.getItems();
         },
         async closeModal(){
             this.store.modal.visible = false;

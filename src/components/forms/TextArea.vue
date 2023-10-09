@@ -1,14 +1,14 @@
 <template>
-    <div class="mb-3 form-check">
-        <input 
-        class="form-check-input" 
-        type="checkbox" 
-        :id="fieldId" 
-        :checked="value"
-        @change="changeValue"
-        :disabled="disabled"
-        >
+    <div class="mb-3">
         <label :for="fieldId" >{{label}}</label>
+        <textarea 
+        :type="options.inputType" 
+        class="form-control" 
+        :id="fieldId"
+        :value="value"
+        @change="changeValue"
+        :disabled="disabled==true"
+        ></textarea>
     </div>
 </template>
 
@@ -33,7 +33,7 @@ export default {
     emits: ["change"],
     methods: {
         changeValue(event){
-            this.$emit('change',event.target.checked);
+            this.$emit('change',event.target.value);
         }
     }
 }

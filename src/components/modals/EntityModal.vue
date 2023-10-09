@@ -67,6 +67,7 @@ export default {
       this.$nextTick(async ()=>{
         await deleteEntity(this.store.entity.path,this.store.values[this.store.modal.map.id.field]);
         this.saving = false;
+        this.store.modal.visible = false;
         this.$emit('onSave',null);
       })
     },
