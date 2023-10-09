@@ -2,7 +2,6 @@
     <div class="mb-3">
         <label :for="fieldId" >{{label}}</label>
         <textarea 
-        :type="options.inputType" 
         class="form-control" 
         :id="fieldId"
         :value="value"
