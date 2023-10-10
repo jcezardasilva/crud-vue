@@ -1,4 +1,4 @@
-const apiUrl = "https://localhost:3000";
+const apiUrl = "http://localhost:8081";
 const endpoint = "/api";
 
 /**
@@ -8,7 +8,7 @@ const endpoint = "/api";
  */
 export async function getAll(entity){
     const entityValue = entity.startsWith("/")? entity: `/${entity}`;
-    const response = await fetch(`${apiUrl}${endpoint}${entityValue}?api-version=1.0`);
+    const response = await fetch(`${apiUrl}${endpoint}${entityValue}`);
     return await response.json();
 }
 /**
@@ -21,7 +21,7 @@ export async function getAll(entity){
 export async function saveEntity(entity,data){
     const entityValue = entity.startsWith("/")? entity: `/${entity}`;
     const id = data.id ? `/${data.id}` : "";
-    const response = await fetch(`${apiUrl}${endpoint}${entityValue}${id}?api-version=1.0`,{
+    const response = await fetch(`${apiUrl}${endpoint}${entityValue}${id}`,{
         method: id? 'PUT': 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -39,7 +39,7 @@ export async function saveEntity(entity,data){
 export async function deleteEntity(entity,id){
     const entityValue = entity.startsWith("/")? entity: `/${entity}`;
     const idValue = id.startsWith('/') ? id: `/${id}`;
-    const response = await fetch(`${apiUrl}${endpoint}${entityValue}${idValue}?api-version=1.0`,{
+    const response = await fetch(`${apiUrl}${endpoint}${entityValue}${idValue}`,{
         method: 'DELETE'
     });
     return await response.json();
