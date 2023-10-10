@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import ListButton from "./ListButton.vue";
+import ListButton from "@/components/buttons/ListButton.vue";
 export default {
     name: "FormListButton",
     components: {

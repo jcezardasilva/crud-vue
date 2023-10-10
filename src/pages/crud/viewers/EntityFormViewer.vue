@@ -11,6 +11,7 @@
         v-if="store.entity!==null && store.form.item!=null && store.viewMode=='form'" 
         @on-save="saveEntity" 
         @on-open-sub-entity="loadSubEntity"
+        @on-open-object="openJsonModal"
         :fields="store.form.fields"
         :item="store.form.item"/>
 
@@ -21,6 +22,12 @@
         @on-change="changeFormPaginationItem"/>   
         
         <SubEntityTableViewer @on-save="onSaveSubEntity"/>
+
+        <JsonModal 
+        v-if="store.modal.type=='json' && store.modal.visible"
+        :title="store.modal.title" 
+        :values="store.modal.values" 
+        @onSave="saveEntity"/>   
     </div>
 </template>
   
@@ -29,6 +36,7 @@ import EntityBar from '@/components/EntityBar.vue';
 import DataForm from '@/components/forms/DataForm.vue';
 import PaginationBar from "@/components/PaginationBar.vue";
 import SubEntityTableViewer from "@/pages/crud/viewers/SubEntityTableViewer.vue";
+import JsonModal from '@/components/modals/JsonModal.vue';
 import store from "@/core/store.js";
 import {getAll} from "@/core/crudService";
 
@@ -38,7 +46,8 @@ export default {
         EntityBar,
         DataForm,
         PaginationBar,
-        SubEntityTableViewer
+        SubEntityTableViewer,
+        JsonModal
     },
     data(){
         return {
@@ -164,10 +173,9 @@ export default {
             this.loadFormItem();
         },
         openJsonModal(data){
-            this.store.values = this.store.entities.find(entity=> entity[data.id.field] == data.id.value);
+            this.store.values = this.store.form.item;
+            this.store.modal.values = this.store.form.item[data.name];
             
-            this.store.modal.fields = this.store.form.table.fields;
-            this.store.modal.values = data.value;
             this.store.modal.map = data;
             this.store.modal.title = data.label;
             this.store.modal.type = "json";

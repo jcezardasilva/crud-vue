@@ -8,7 +8,11 @@
       </div>  
       <div class="modal-body">
         <p v-if="store.form.action=='delete'">Are you sure you want to delete this entity?</p>
-        <FormInput v-for="(input,index) in visibleFields" :key="index" :options="input" :value="getFieldValue(input.name)" :disabled="store.form.action=='delete'"/>
+        <FormInput v-for="(input,index) in visibleFields" 
+        :key="index" 
+        :options="input" 
+        :value="getFieldValue(input.name)" 
+        :disabled="store.form.action=='delete' || input.readonly"/>
       </div>
       <div class="modal-footer">
         <FormFooter 
