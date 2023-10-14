@@ -56,6 +56,7 @@ export default {
     },
     getFieldValue(columnName){
         const index = this.store.form.table.index;
+        if(index>=this.store.form.table.items.length) return;
         const subEntity =this.store.form.table.items[index];
         return subEntity[columnName];
     },
@@ -69,16 +70,25 @@ export default {
         this.$emit('onSave',null);
       })
     },
+    async addSubEntity(){
+      this.store.form.item[this.store.form.table.name].push(this.store.values);
+    },
+    async updateSubEntity(){
+      this.store.form.item[this.store.form.table.name] = this.store.form.item[this.store.form.table.name].map(oldItem=> {
+          return oldItem.name === this.store.values.name? this.store.values : oldItem;
+        });
+    },
     async saveEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        
-        this.store.form.item[this.store.form.table.name] = this.store.form.item[this.store.form.table.name].map(v=> {
-          if(v.name === this.store.values.name){
-            return this.store.values;
-          }
-          return v;
-        });
+        const match = this.store.form.item[this.store.form.table.name].find(v=> v.name === this.store.values.name);
+        if(match){
+          this.updateSubEntity();
+        }
+        else {
+          this.addSubEntity();
+        }
+
         await saveEntity(this.store.entity.path,this.store.form.item);
         this.saving = false;
         this.store.modal.visible = false;
