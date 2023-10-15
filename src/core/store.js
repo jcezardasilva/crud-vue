@@ -2,6 +2,7 @@ import { reactive} from "vue";
 
 const state = reactive({
     entities: [],
+    crudEntities: [],
     path: "/home",
     entity: {},
     values: {},

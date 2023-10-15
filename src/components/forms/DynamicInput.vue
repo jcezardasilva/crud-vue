@@ -1,24 +1,26 @@
 <template>
     <div>
         <label :for="fieldId" >{{label}}</label>
-        <textarea 
+        <input 
         class="form-control" 
-        :id="fieldId"
+        :type="inputType" 
+        :id="fieldId" 
         :value="value"
         @change="changeValue"
         :disabled="disabled"
-        ></textarea>
+        >
     </div>
 </template>
 
 <script>
 
 export default {
-    name: "TextArea",
+    name: "DynamicInput",
     props: {
         name: String,
         label: String,
         value: Boolean,
+        inputType: String,
         disabled: Boolean
     },
     data(){

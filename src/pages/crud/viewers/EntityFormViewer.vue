@@ -63,7 +63,7 @@ export default {
                     return;
                 }
                 const path = value.replace("\\","");
-                this.store.entity = this.store.entities.find(p=> path.indexOf(p.path)>-1);
+                this.store.entity = this.store.crudEntities.find(p=> path.indexOf(p.path)>-1);
                 if(this.store.entity){
                     this.loadEntity();
                 }
@@ -71,7 +71,7 @@ export default {
         }
     },
     mounted(){
-        this.store.entity = this.store.entities.find(p=> this.store.path.indexOf(p.path)>-1);
+        this.store.entity = this.store.crudEntities.find(p=> this.store.path.indexOf(p.path)>-1);
         this.loadEntity();
     },
     methods: {

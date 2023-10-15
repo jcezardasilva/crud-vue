@@ -9,7 +9,7 @@
             to="/"
             >Home</router-link>
         </li>
-        <li class="nav-item" v-for="(item,index) in store.entities" :key="index">
+        <li class="nav-item" v-for="(item,index) in store.crudEntities" :key="index">
             <router-link
             class='nav-link'
             :class="item.type=='system' ? 'text-primary': ''"
