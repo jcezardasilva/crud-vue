@@ -1,7 +1,7 @@
 <template>
   <nav
     class="navbar navbar-expand-lg navbar-light bg-light shadow-sm ps-3 pe-3">
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between w-100">
       <button
         class="navbar-toggler"
         type="button"
@@ -15,6 +15,9 @@
       <div class="collapse navbar-collapse" id="collapsable-navbar">
         <RoutesList />
       </div>
+      <a v-if="false" href="#" class="mt-2 text-secondary">
+        <font-awesome-icon icon="fa-solid fa-gear"/>
+      </a>
     </div>
   </nav>
   <header class="navbar navbar-expand-lg"></header>

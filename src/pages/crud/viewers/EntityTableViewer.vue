@@ -2,9 +2,11 @@
     <div >
         <EntityBar 
         v-if="store.entity!==null"
+        :viewMode="store.viewMode"
         @onClickAdd="openModalInsert" 
         @onClickRefresh="getItems" 
         @on-toggle-view-mode="toggleViewMode"
+        @on-download="onDownload"
         :update="store.updatedAt"/>
 
         <DataTable  
@@ -35,6 +37,7 @@ import EntityModal from "@/components/modals/EntityModal.vue";
 import JsonModal from '@/components/modals/JsonModal.vue';
 import store from "@/core/store.js";
 import {getAll} from "@/core/crudService";
+import { downloadFile } from '@/core/fileService';
 
 export default {
     name: 'EntityTableViewer',
@@ -134,7 +137,21 @@ export default {
                 visible: true
             })
         },
-        
+        onDownload(format){
+            let items = this.store.table.items;
+            if(format==="xlsx"){
+                items = items.map(item=>{
+                    const keys = Object.keys(item);
+                    for(const key of keys){
+                        if(typeof item[key] === 'object' || Array.isArray(item[key])){
+                            item[key] = JSON.stringify(item[key]);
+                        }
+                    }
+                    return item;
+                })
+            }
+            downloadFile(items,format);
+        },
         clearSubEntity(){
             this.store.form.table.entity = "";
             this.store.form.table.fields = [];

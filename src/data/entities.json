@@ -1,0 +1,197 @@
+[
+    {
+      "id": "1",
+      "name": "Entities",
+      "path": "/entities",
+      "fields": [
+        {
+          "name": "id",
+          "label": "Id",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": false,
+          "visibleOnTable": true,
+          "isKey": false
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "dataType": "string",
+          "inputType": "text",
+          "required": false,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "path",
+          "label": "Path",
+          "dataType": "string",
+          "inputType": "text",
+          "required": false,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "fields",
+          "label": "Fields",
+          "dataType": "EntityFields[]",
+          "required": false,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "type",
+          "label": "Type",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "isReadonly",
+          "label": "Is Readonly",
+          "dataType": "bool",
+          "inputType": "checkbox",
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        }
+      ],
+      "type": "system"
+    },
+    {
+      "id": "3",
+      "name": "EntityFields",
+      "path": "/entityfields",
+      "fields": [
+        {
+          "name": "name",
+          "label": "Name",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "label",
+          "label": "Label",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "dataType",
+          "label": "Data Type",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "inputType",
+          "label": "Input Type",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "required",
+          "label": "Required",
+          "dataType": "bool",
+          "inputType": "checkbox",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "visibleOnForm",
+          "label": "Visible On Form",
+          "dataType": "bool",
+          "inputType": "checkbox",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "visibleOnTable",
+          "label": "Visible On Table",
+          "dataType": "bool",
+          "inputType": "checkbox",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "isKey",
+          "label": "Is Key",
+          "dataType": "bool",
+          "inputType": "checkbox",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        }
+      ],
+      "type": "system",
+      "isReadonly": true
+    },
+    {
+      "id": "4dc7377d-65c8-415d-8763-dab25b42e1a3",
+      "name": "People",
+      "path": "/people",
+      "type": "business",
+      "fields": [
+        {
+          "name": "id",
+          "label": "Id",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "first",
+          "label": "First",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "last",
+          "label": "Last",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "description",
+          "label": "Description",
+          "dataType": "string",
+          "inputType": "text",
+          "required": true,
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        },
+        {
+          "name": "contacts",
+          "label": "Contacts",
+          "dataType": "object[]",
+          "inputType": "object",
+          "visibleOnForm": true,
+          "visibleOnTable": true
+        }
+      ]
+    }
+  ]
+  

@@ -2,6 +2,7 @@
     <div >
         <EntityBar 
         v-if="store.entity!==null"
+        :viewMode="store.viewMode"
         @onClickAdd="openModalInsert" 
         @onClickRefresh="getItems" 
         @on-toggle-view-mode="toggleViewMode"
