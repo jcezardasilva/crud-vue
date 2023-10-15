@@ -12,6 +12,7 @@
         <li class="nav-item" v-for="(item,index) in store.entities" :key="index">
             <router-link
             class='nav-link'
+            :class="item.type=='system' ? 'text-primary': ''"
             @click="setActiveItem(item.name)"
             aria-current="page"
             href="#"
