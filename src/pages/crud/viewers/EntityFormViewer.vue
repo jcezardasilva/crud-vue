@@ -1,19 +1,18 @@
 <template>
-    <div>
+    <div >
         <EntityBar 
         v-if="store.entity!==null"
         @onClickAdd="openModalInsert" 
         @onClickRefresh="getItems" 
         @on-toggle-view-mode="toggleViewMode"
         :update="store.updatedAt"/>
-
+        
         <DataForm 
+        class="card"
         v-if="store.entity!==null && store.form.item!=null && store.viewMode=='form'" 
         @on-save="saveEntity" 
         @on-open-sub-entity="loadSubEntity"
-        @on-open-object="openJsonModal"
-        :fields="store.form.fields"
-        :item="store.form.item"/>
+        @on-open-object="openJsonModal" />
 
         <PaginationBar 
         v-if="store.viewMode=='form' && store.form.item!=null" 
@@ -33,10 +32,10 @@
   
 <script>
 import EntityBar from '@/components/EntityBar.vue';
-import DataForm from '@/components/forms/DataForm.vue';
-import PaginationBar from "@/components/PaginationBar.vue";
+import DataForm from '@/pages/crud/viewers/DataForm.vue';
 import SubEntityTableViewer from "@/pages/crud/viewers/SubEntityTableViewer.vue";
 import JsonModal from '@/components/modals/JsonModal.vue';
+import PaginationBar from "@/components/PaginationBar.vue";
 import store from "@/core/store.js";
 import {getAll} from "@/core/crudService";
 
@@ -105,44 +104,11 @@ export default {
         },
         async saveEntity(){
             this.loadEntity();
-        },
-        resetFormItemNumber(){
-            this.store.form.itemNumber = 1;
-        },
-        
-        async onEntityUpdateClick(data){
-            if(data.id.field === null) {
-                throw Error("id not found.");
-            }
-            this.store.values = this.store.table.items.find(r=>r[data.id.field]==data.id.value);
-            this.store.form.action = "update";
-
-            this.store.modal = Object.assign(this.store.modal,{
-                map: data,
-                fields: this.store.table.fields,
-                title: "Update Item",
-                action: "update",
-                type: "entity",
-                visible: true
-            })
-        },
+        },        
         changeFormPaginationItem(value){
             this.store.form.itemNumber = value;
             this.loadFormItem();
             this.clearSubEntity();
-        },
-        async onEntityDeleteClick(data){
-            this.store.values = this.store.table.items.find(r=>r[data.id.field]==data.id.value);
-            this.store.form.action = "delete";
-            
-            this.store.modal = Object.assign(this.store.modal,{
-                map: data,
-                fields: this.store.table.fields,
-                title: "Delete Item",
-                action: "update",
-                type: "entity",
-                visible: true
-            })
         },
         
         loadSubEntity(item){
@@ -162,10 +128,6 @@ export default {
         },
         onSaveSubEntity(){
             this.getItems();
-        },
-        async closeModal(){
-            this.store.modal.visible = false;
-            this.store.modal.map = null;
         },
         async toggleViewMode(value){
             this.store.viewMode = value;
