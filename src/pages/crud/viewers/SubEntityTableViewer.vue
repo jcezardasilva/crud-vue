@@ -1,14 +1,19 @@
 <template>
 <div v-if="store.form.table.entity!=='' && store.viewMode=='form'" >
-      <h5>{{ store.form.table.label + " | " + store.form.table.entity }}</h5>
-      <DataTable 
-      :name="store.form.table.name"
-      :fields="store.form.table.fields" 
-      :items="store.form.table.items"
-      @on-update-click="onSubEntityUpdateClick"
-      @on-delete-click="onSubEntityDeleteClick"
-      />
-      
+    <h5>{{ store.form.table.label + " | " + store.form.table.entity }}</h5>
+
+    <SubEntityBar 
+    v-if="store.entity!==null"
+    @onClickAdd="onSubEntityAddClick"/>
+    
+    <DataTable 
+    :name="store.form.table.name"
+    :fields="store.form.table.fields" 
+    :items="store.form.table.items"
+    @on-update-click="onSubEntityUpdateClick"
+    @on-delete-click="onSubEntityDeleteClick"
+    />
+    
     <SubEntityModal 
     :title="store.modal.title"
     @onclickHide="onCloseModal" 
@@ -19,6 +24,7 @@
   
 <script>
   import DataTable from "@/components/tables/DataTable.vue";
+  import SubEntityBar from "@/components/SubEntityBar.vue";
   import SubEntityModal from "@/components/modals/SubEntityModal.vue";
   import store from "@/core/store.js";
 
@@ -26,6 +32,7 @@
     name: 'SubEntityTableViewer',
     components: {
         DataTable,
+        SubEntityBar,
         SubEntityModal
     },
     data(){
@@ -33,8 +40,23 @@
             store
         }
     },
-    emits: ["onSubEntityUpdateClick","onSubEntityDeleteClick","onCloseModal", "onSave"],
+    emits: ["onSubEntityAddClick","onSubEntityUpdateClick","onSubEntityDeleteClick","onCloseModal", "onSave"],
     methods: {
+        onSubEntityAddClick(){
+            this.store.form.table.index = this.store.form.table.items.length;
+            this.store.form.table.map = null;
+            this.store.values = {};
+
+            this.store.modal = Object.assign(this.store.modal, {
+                values: {},
+                action: "insert",
+                fields: this.store.form.table.fields,
+                title: `Add Item to ${store.form.table.label}`,
+                type: "subEntity",
+                visible: true
+            })
+            this.$emit('onSubEntityAddClick');
+        },
         onSubEntityUpdateClick(value){
             const index = value.id.value || value.id;
             this.store.form.table.index = index;
@@ -44,7 +66,7 @@
             this.store.modal = Object.assign(this.store.modal, {
                 action: "update",
                 fields: this.store.form.table.fields,
-                title: "Update Item",
+                title: `Update Item on ${store.form.table.label}`,
                 type: "subEntity",
                 visible: true
             })
@@ -59,7 +81,7 @@
             this.store.modal = Object.assign(this.store.modal, {
                 action: "delete",
                 fields: this.store.form.table.fields,
-                title: "Delete Item",
+                title: `Update Item from ${store.form.table.label}`,
                 type: "subEntity",
                 visible: true
             })

@@ -48,7 +48,7 @@ export default {
   },  
   props: {
     title: String,
-    values: Array
+    values: [Array,Object]
   },
   data(){
     return {
@@ -65,9 +65,12 @@ export default {
     this.setData();
   },
   methods: {
+    isObject(value){
+      return typeof value === 'object' && !Array.isArray(value) && value !== null;
+    },
     async setData(){
       await this.$nextTick()
-      this.editor.value = [...this.values];
+      this.editor.value = this.values;
     },
     hideModal(){
       this.store.modal.visible = false;
@@ -75,13 +78,13 @@ export default {
     },
     handleChange(content){
       const mapValues = this.store.modal.map;
-      this.store.values[mapValues.key] = content.json;
+      this.store.values[mapValues.key || mapValues.name] = content.json;
       this.$emit('onEdit',null);
     },
     async saveEntity(){
       this.saving = true;
       this.$nextTick(async ()=>{
-        await saveEntity(this.store.path,this.store.values);
+        await saveEntity(this.store.path,this.store.form.item);
         this.saving = false;
         this.store.modal.visible = false;
         this.store.modal.map = null;

@@ -10,9 +10,9 @@ import {addRoute, router } from "./router";
 import entityService from "./core/entityService";
 
 entityService.getAll().then((entities) => {
-    store.entities = entities;
+    store.entities = entities.filter(e=> !e.isReadonly);
 
-    entities.forEach(entity => {
+    store.entities.forEach(entity => {
         addRoute(entity.path);
     });
 

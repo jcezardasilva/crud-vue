@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div >
         <EntityBar 
         v-if="store.entity!==null"
         @onClickAdd="openModalInsert" 
@@ -121,11 +121,6 @@ export default {
                 visible: true
             })
         },
-        changeFormPaginationItem(value){
-            this.store.form.itemNumber = value;
-            this.loadFormItem();
-            this.clearSubEntity();
-        },
         async onEntityDeleteClick(data){
             this.store.values = this.store.table.items.find(r=>r[data.id.field]==data.id.value);
             this.store.form.action = "delete";
@@ -140,24 +135,10 @@ export default {
             })
         },
         
-        loadSubEntity(item){
-            this.store.form.table.name = item.name;
-            this.store.form.table.label = item.label;
-            this.store.form.table.entity = item.dataType.replace("[]","");
-            const entity = this.store.entities.find(e=> e.name === this.store.form.table.entity);
-            if(entity === null) return;
-            
-            this.store.form.table.fields = entity.fields;
-            this.store.form.table.items = this.store.form.item[item.name];
-        },
         clearSubEntity(){
             this.store.form.table.entity = "";
             this.store.form.table.fields = [];
             this.store.form.table.items = [];
-        },
-        async closeModal(){
-            this.store.modal.visible = false;
-            this.store.modal.map = null;
         },
         async toggleViewMode(value){
             this.store.viewMode = value;
