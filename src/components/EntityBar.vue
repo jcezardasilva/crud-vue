@@ -10,6 +10,9 @@
       <span class="update-time ms-2" v-if="update!==null">{{ refresh() }}</span>
     </div>
     <div class="d-flex">
+      <SearchBar v-if="false"/>
+    </div>
+    <div class="d-flex">
       <DownloadMenu class="text-primary"
       @on-json="onDownloadJson"
       @on-csv="onDownloadCsv"
@@ -27,11 +30,13 @@
 <script>
 import { toISOString } from '@/core/dateService';
 import DownloadMenu from '@/components/DownloadMenu.vue';
+import SearchBar from '@/components/SearchBar.vue';
 export default {
     name: "EntityBar",
     emits: ["onClickAdd","onClickRefresh", "onToggleViewMode", "onDownload"],
     components: {
-      DownloadMenu
+      DownloadMenu,
+      SearchBar
     },
     props: {
       viewMode: String,

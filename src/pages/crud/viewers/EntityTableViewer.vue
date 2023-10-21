@@ -61,7 +61,7 @@ export default {
                 {
                     return;
                 }
-                const path = value.replace("\\","");
+                const path = value;
                 this.store.entity = this.store.crudEntities.find(p=> path.indexOf(p.path)>-1);
                 if(this.store.entity){
                     this.loadEntity();

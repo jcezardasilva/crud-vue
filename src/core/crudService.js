@@ -7,8 +7,8 @@ const endpoint = "/api";
  * @returns 
  */
 export async function getAll(entity){
-    const entityValue = entity.startsWith("/")? entity: `/${entity}`;
-    const response = await fetch(`${apiUrl}${endpoint}${entityValue}`);
+    const entityValue = entity == "entities" ? entity: `crud/${entity}`;
+    const response = await fetch(`${apiUrl}${endpoint}/${entityValue}`);
     return await response.json();
 }
 /**

@@ -3,7 +3,7 @@ import { reactive} from "vue";
 const state = reactive({
     entities: [],
     crudEntities: [],
-    path: "/home",
+    path: "home",
     entity: {},
     values: {},
     viewMode: "table",

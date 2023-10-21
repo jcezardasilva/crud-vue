@@ -9,7 +9,7 @@ export const routes = [
   ]
 
 export function addRoute(path){
-  routes.push({ path: path.startsWith("/")? path: `/${path}`, component: Crud });
+  routes.push({ path: `/${path}`, component: Crud });
 }
 
 export function router(){
@@ -18,7 +18,7 @@ export function router(){
     routes,
   })
   router.beforeEach((to, from, next) => {
-    store.path = to.path;
+    store.path = to.path.replace("/","");
     next();
   });
 
