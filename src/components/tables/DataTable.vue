@@ -34,12 +34,7 @@ export default {
     data(){
         return {
             tableFields: [],
-            tableItems: [],
-            actionsColumn: {
-                name: "crud-actions",
-                label: "Actions",
-                visibleOnForm: false
-            }
+            tableItems: []
         }
     },
     emits: ['onUpdateClick','onDeleteClick','openMultilineItem'],
@@ -77,7 +72,8 @@ export default {
                 fields.push({
                     name: "crud-actions",
                     label: "Actions",
-                    visibleOnForm: false
+                    visibleOnForm: false,
+                    inputType: "actions"
                 });
             }
             this.tableFields = fields.filter(column => [undefined,true].includes(column.visibleOnTable));

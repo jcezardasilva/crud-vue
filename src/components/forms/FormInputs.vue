@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="(field,index) in fields" :key="index" >
-          <FormInput v-if="isLiteral(item[field.name])" :value="item[field.name]" :options="field" />
+          <FormInput class="mb-3" v-if="isLiteral(item[field.name])" :value="item[field.name]" :options="field" />
           <FormListButton v-if="Array.isArray(item[field.name])" :name="field.name" :label="field.label" @on-click="openList(field)"/>
           <FormTreeButton v-if="isObject(item[field.name])"  :name="field.name" :label="field.label" @on-click="openObject(field)"/>
         </div>        

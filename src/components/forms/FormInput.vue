@@ -1,48 +1,17 @@
 <template>
-    <div>
-        <DynamicInput class="mb-3" v-if="dynamicType && !multiValue"
-        :name="options.name" 
-        :label="options.label" 
-        :disabled="disabled" 
-        :value="value"
-        :inputType="options.inputType"
-        @change="changeValue"
-        />
-
-        <CheckBox class="mb-3" v-if="options.inputType==='checkbox'" 
-        :name="options.name" 
-        :label="options.label" 
-        :disabled="disabled" 
-        :value="value"
-        @change="changeValue"/>
-
-        <MultTextInput class="mb-3" v-if="options.dataType=='string[]'" 
-        :name="options.name" 
-        :label="options.label" 
-        :disabled="disabled" 
-        :value="value"
-        @change="changeMultiValue"
-        />
-        
-        <TextInput class="mb-3" v-if="options.dataType=='string'"
-        :name="options.name"
-        :label="options.label"
-        :disabled="disabled"
-        :value="value"/>
-        
-        <TextArea class="mb-3" v-if="options.inputType=='textarea'"
-        :name="options.name"
-        :label="options.label"
-        :disabled="disabled"
-        :value="value"
-        @change="changeValue"></TextArea>
-    </div>
+    <component v-if="currentInput!==''" :is="currentInput" 
+    :name="options.name" 
+    :label="options.label" 
+    :disabled="disabled" 
+    :value="value"
+    :inputType="options.inputType"
+    @change="changeValue"></component>
 </template>
 
 <script>
 import DynamicInput from './DynamicInput.vue';
 import CheckBox from "@/components/forms/CheckBox.vue";
-import MultTextInput from './MultTextInput.vue';
+import MultiTextInput from './MultiTextInput.vue';
 import TextInput from './TextInput.vue';
 import TextArea from "@/components/forms/TextArea.vue";
 import store from "@/core/store";
@@ -52,7 +21,7 @@ export default {
     components: {
         DynamicInput,
         CheckBox,
-        MultTextInput,
+        MultiTextInput,
         TextInput,
         TextArea
     },
@@ -63,11 +32,12 @@ export default {
     },
     data(){
         return {
+            currentInput: "",
+            inputNames: ["DynamicInput","CheckBox","MultiTextInput","TextInput","TextArea"],
             store,
             fieldId: "",
             dynamicType: false,
-            multiValue: false,
-            inputTypes: ["color","date","datetime-local","email","file","image","month","number","password","tel","time","url","week"]
+            multiValue: false
         }
     },
     watch: {
@@ -80,19 +50,43 @@ export default {
     },
     mounted(){
         this.fieldId = this.$uuidv4() + this.options.name;
-        this.checkType();
+        this.init();
     },
     emits: ["changeValue"],
     methods: {
         init(){
-            this.checkType();
-            this.isMultivalue();
+            this.setInputType();
         },
-        checkType(){
-            this.dynamicType = this.inputTypes.includes(this.options.inputType);
-        },
-        isMultivalue(){
-            this.multiValue = this.options.dataType.indexOf('[]')>-1
+        setInputType(){
+            const inputs = {
+                "bool": "Checkbox",
+                "string[]": "MultiTextInput",
+                "string": "TextInput",
+                "textarea": "TextArea",
+                "color": "DynamicInput",
+                "date": "DynamicInput",
+                "datetime-local": "DynamicInput",
+                "email": "DynamicInput",
+                "file": "DynamicInput",
+                "image": "DynamicInput",
+                "month": "DynamicInput",
+                "number": "DynamicInput",
+                "password": "DynamicInput",
+                "tel": "DynamicInput",
+                "time": "DynamicInput",
+                "url": "DynamicInput",
+                "week": "DynamicInput"
+            }
+            if(this.options.inputType ==="actions") return;
+            if(this.options.dataType in inputs){
+                this.currentInput = inputs[this.options.dataType];
+                return;
+            }
+            if(this.options.inputType in inputs){
+                this.currentInput = inputs[this.options.inputType];
+                return;
+            }
+            throw Error(`Unknown input type for '${this.options.dataType}'`);
         },
         changeValue(event){
             const value = typeof event === 'object' ? event.target.value : event;
