@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import FormInput from "@/components/forms/FormInput.vue";
+import FormInput from "@/components/forms/inputs/FormInput.vue";
 import FormFooter from "@/components/forms/FormFooter.vue";
 import { saveEntity } from "@/core/crudService";
 import store from "@/core/store";

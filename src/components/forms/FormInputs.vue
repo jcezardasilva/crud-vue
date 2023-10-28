@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import FormInput from "@/components/forms/FormInput.vue";
+import FormInput from "@/components/forms/inputs/FormInput.vue";
 import FormListButton from "@/components/forms/FormListButton.vue";
 import FormTreeButton from "@/components/forms/FormTreeButton.vue";
 

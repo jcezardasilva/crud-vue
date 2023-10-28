@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import FormInput from "@/components/forms/FormInput.vue";
+import FormInput from "@/components/forms/inputs/FormInput.vue";
 import FormFooter from "@/components/forms/FormFooter.vue";
 import store from "@/core/store";
 import {deleteEntity,saveEntity} from "@/core/crudService";
