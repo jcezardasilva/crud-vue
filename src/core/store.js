@@ -1,8 +1,11 @@
 import { reactive} from "vue";
 
 const state = reactive({
+    businessEntities: [],
+    systemEntities: [],
     entities: [],
     crudEntities: [],
+    routes: [],
     path: "home",
     entity: {},
     values: {},

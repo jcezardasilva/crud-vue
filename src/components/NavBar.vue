@@ -15,7 +15,7 @@
       <div class="collapse navbar-collapse" id="collapsable-navbar">
         <RoutesList />
       </div>
-      <a v-if="false" href="#" class="mt-2 text-secondary">
+      <a href="#" class="mt-2" :class=" isConfigActive ?'text-primary' : 'text-secondary'" @click="toggleConfig">
         <font-awesome-icon icon="fa-solid fa-gear"/>
       </a>
     </div>
@@ -32,9 +32,16 @@ export default {
   },
   data() {
     return {
-      activeItem: true
+      isConfigActive: false
     };
   },
+  emits: ["ToggleConfig"],
+  methods: {
+    toggleConfig(){
+      this.isConfigActive=!this.isConfigActive;
+      this.$emit('ToggleConfig',this.isConfigActive);
+    }
+  }
 };
 </script>
 
